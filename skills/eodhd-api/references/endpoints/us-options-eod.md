@@ -1,107 +1,200 @@
-# US Options EOD API
+# US Options EOD (End-of-Day) API
 
 Status: complete
-Source: financial-apis (Options Data API)
-Docs: https://eodhd.com/financial-apis/stock-options-data-api
-Provider: EODHD
+Source: marketplace (US Stock Options Data API by Unicornbay)
+Docs: https://eodhd.com/financial-apis/us-stock-options-data-api
+Provider: EODHD Marketplace
 Base URL: https://eodhd.com/api
-Path: /options/{SYMBOL}
+Path: /mp/unicornbay/options/eod
 Method: GET
 Auth: api_token (query)
 
 ## Purpose
-Retrieve end-of-day options data for US stocks including all available strikes,
-expirations, Greeks, and volume/open interest data for both calls and puts.
+
+Returns all available end-of-day (EOD) trades or bid data for stock options contracts.
+Provides historical daily snapshots including trade timestamps, prices, volumes, bid/ask prices,
+Greeks, and contract details. Useful for analyzing daily performance, building historical
+volatility surfaces, and backtesting options strategies.
 
 ## Parameters
-- Required:
-  - api_token: EODHD API key
-  - {SYMBOL}: Underlying symbol with exchange suffix (e.g., AAPL.US)
-- Optional:
-  - from: Start date YYYY-MM-DD
-  - to: End date YYYY-MM-DD
-  - trade_date_from: Filter by trade date start
-  - trade_date_to: Filter by trade date end
-  - contract_name: Specific contract (e.g., AAPL230120C00150000)
+
+| Parameter | Required | Type | Description |
+|-----------|----------|------|-------------|
+| api_token | Yes | string | Your API key for authentication |
+| filter[contract] | No | string | Filter by specific contract name (e.g., 'AAPL270115P00450000') |
+| filter[underlying_symbol] | No | string | Filter by underlying stock symbol (e.g., 'AAPL') |
+| filter[exp_date_eq] | No | string (YYYY-MM-DD) | Filter contracts expiring on exact date |
+| filter[exp_date_from] | No | string (YYYY-MM-DD) | Filter contracts expiring from date onwards |
+| filter[exp_date_to] | No | string (YYYY-MM-DD) | Filter contracts expiring up to date |
+| filter[tradetime_eq] | No | string (YYYY-MM-DD) | Filter by exact trade time date |
+| filter[tradetime_from] | No | string (YYYY-MM-DD) | Filter by trade time from date onwards |
+| filter[tradetime_to] | No | string (YYYY-MM-DD) | Filter by trade time up to date |
+| filter[type] | No | string | Contract type: 'put' or 'call' |
+| filter[strike_eq] | No | number | Filter by exact strike price |
+| filter[strike_from] | No | number | Filter by strike price from value onwards |
+| filter[strike_to] | No | number | Filter by strike price up to value |
+| sort | No | string | Sort order: 'exp_date', 'strike', '-exp_date', '-strike' |
+| page[offset] | No | integer | Pagination offset (default: 0, max: 10000) |
+| page[limit] | No | integer | Results per page (default: 1000, max: 1000) |
+| fields[options-eod] | No | string | Comma-separated list of fields to include |
+| compact | No | boolean | Enable compact mode (1=true) to minimize response size |
 
 ## Response (shape)
-Nested structure with metadata and options chain:
+
+### Normal Mode
 
 ```json
 {
-  "code": "AAPL.US",
-  "exchange": "US",
-  "lastTradeDate": "2024-01-15",
+  "meta": {
+    "offset": 0,
+    "limit": 5,
+    "total": 355,
+    "fields": ["contract", "underlying_symbol", "exp_date", "..."]
+  },
   "data": [
     {
-      "expirationDate": "2024-02-16",
-      "impliedVolatility": 0.25,
-      "putCallRatio": 0.85,
-      "options": {
-        "CALL": [
-          {
-            "contractName": "AAPL240216C00185000",
-            "contractSize": "REGULAR",
-            "currency": "USD",
-            "type": "CALL",
-            "inTheMoney": "TRUE",
-            "lastTradeDateTime": "2024-01-15 16:00:00",
-            "expirationDate": "2024-02-16",
-            "strike": 185.0,
-            "lastPrice": 8.50,
-            "bid": 8.45,
-            "ask": 8.55,
-            "change": 0.35,
-            "changePercent": 4.3,
-            "volume": 15234,
-            "openInterest": 45678,
-            "impliedVolatility": 0.28,
-            "delta": 0.65,
-            "gamma": 0.025,
-            "theta": -0.15,
-            "vega": 0.32,
-            "rho": 0.08,
-            "theoretical": 8.52,
-            "intrinsicValue": 7.50,
-            "timeValue": 1.00,
-            "updatedAt": "2024-01-15T21:00:00Z"
-          }
-        ],
-        "PUT": [
-          {
-            "contractName": "AAPL240216P00185000",
-            "type": "PUT",
-            "strike": 185.0,
-            ...
-          }
-        ]
+      "id": "AAPL270115P00450000-2026-02-06",
+      "type": "options-eod",
+      "attributes": {
+        "contract": "AAPL270115P00450000",
+        "underlying_symbol": "AAPL",
+        "exp_date": "2027-01-15",
+        "expiration_type": "monthly",
+        "type": "put",
+        "strike": 450,
+        "exchange": "NASDAQ",
+        "currency": "USD",
+        "open": 0,
+        "high": 0,
+        "low": 0,
+        "last": 245.9,
+        "last_size": 0,
+        "change": 0,
+        "pctchange": 0,
+        "previous": 0,
+        "previous_date": null,
+        "bid": 170.2,
+        "bid_date": "2026-02-06 21:00:01",
+        "bid_size": 11,
+        "ask": 173.3,
+        "ask_date": "2026-02-06 21:00:01",
+        "ask_size": 111,
+        "moneyness": 0.62,
+        "volume": 0,
+        "volume_change": 0,
+        "volume_pctchange": 0,
+        "open_interest": 0,
+        "open_interest_change": 0,
+        "open_interest_pctchange": 0,
+        "volatility": 0,
+        "volatility_change": 0,
+        "volatility_pctchange": 0,
+        "theoretical": 0,
+        "delta": 0,
+        "gamma": 0,
+        "theta": 0,
+        "vega": 0,
+        "rho": 0,
+        "tradetime": "2025-06-08",
+        "vol_oi_ratio": 0,
+        "dte": 342,
+        "midpoint": 171.75
       }
     }
+  ],
+  "links": {
+    "next": "https://eodhd.com/api/mp/unicornbay/options/eod?...&page[offset]=5"
+  }
+}
+```
+
+### Compact Mode (compact=1)
+
+Returns data as arrays without field names to minimize response size:
+
+```json
+{
+  "meta": {
+    "fields": ["contract", "exp_date", "strike", "bid", "ask", "..."]
+  },
+  "data": [
+    ["AAPL270115P00450000", "2027-01-15", 450, 170.2, 173.3, ...]
   ]
 }
 ```
 
-## Example request
+### Field Descriptions
+
+| Field | Type | Description |
+|-------|------|-------------|
+| contract | string | OCC contract identifier |
+| underlying_symbol | string | Underlying stock ticker |
+| exp_date | string (date) | Expiration date |
+| expiration_type | string | 'monthly', 'weekly', 'quarterly' |
+| type | string | 'call' or 'put' |
+| strike | number | Strike price |
+| exchange | string | Exchange code |
+| currency | string | Currency (USD) |
+| open | number | Opening price for the day |
+| high | number | High price for the day |
+| low | number | Low price for the day |
+| last | number | Last traded price |
+| last_size | integer | Size of last trade |
+| change | number | Price change |
+| pctchange | number | Percentage change |
+| previous | number | Previous close |
+| previous_date | string | Previous close date |
+| bid | number | EOD bid price |
+| bid_date | string | Bid timestamp |
+| bid_size | integer | Bid size |
+| ask | number | EOD ask price |
+| ask_date | string | Ask timestamp |
+| ask_size | integer | Ask size |
+| moneyness | number | Moneyness ratio |
+| volume | integer | Daily volume |
+| volume_change | integer | Volume change |
+| volume_pctchange | number | Volume % change |
+| open_interest | integer | Open interest |
+| open_interest_change | integer | OI change |
+| open_interest_pctchange | number | OI % change |
+| volatility | number | Implied volatility |
+| volatility_change | number | IV change |
+| volatility_pctchange | number | IV % change |
+| theoretical | number | Theoretical price |
+| delta | number | Delta Greek |
+| gamma | number | Gamma Greek |
+| theta | number | Theta Greek |
+| vega | number | Vega Greek |
+| rho | number | Rho Greek |
+| tradetime | string (date) | Last market activity date |
+| vol_oi_ratio | number | Volume/OI ratio |
+| dte | integer | Days to expiration |
+| midpoint | number | Bid/ask midpoint |
+
+## Example Requests
+
 ```bash
-# All options for AAPL
-curl "https://eodhd.com/api/options/AAPL.US?api_token=demo&fmt=json"
+# Historical EOD data for specific contract
+curl "https://eodhd.com/api/mp/unicornbay/options/eod?filter[contract]=AAPL270115P00450000&page[limit]=5&sort=-exp_date&api_token=demo"
 
-# Options with date filter
-curl "https://eodhd.com/api/options/AAPL.US?api_token=demo&fmt=json&from=2024-01-01&to=2024-01-31"
+# EOD data with specific fields
+curl "https://eodhd.com/api/mp/unicornbay/options/eod?filter[contract]=AAPL270115P00450000&fields[options-eod]=contract,bid_date,open,high,low,last&page[limit]=100&api_token=demo"
 
-# Specific contract
-curl "https://eodhd.com/api/options/AAPL.US?api_token=demo&fmt=json&contract_name=AAPL240216C00185000"
+# EOD data in compact mode (reduced response size)
+curl "https://eodhd.com/api/mp/unicornbay/options/eod?filter[underlying_symbol]=AAPL&filter[type]=call&compact=1&page[limit]=100&api_token=demo"
 
-# Using the helper client
-python eodhd_client.py --endpoint options --symbol AAPL.US
+# Filter by tradetime range
+curl "https://eodhd.com/api/mp/unicornbay/options/eod?filter[underlying_symbol]=AAPL&filter[tradetime_from]=2025-01-01&filter[tradetime_to]=2025-01-31&api_token=demo"
 ```
 
 ## Notes
-- Options data is available for US equities with listed options
-- Greeks (delta, gamma, theta, vega, rho) are calculated end-of-day
-- Contract naming follows OCC format: SYMBOL + YYMMDD + C/P + strike*1000
-- Implied volatility is per-contract; expiration-level IV is aggregate
-- Volume and open interest are as of market close
-- Historical options data availability varies by plan
-- Options can have many strikes/expirations; response may be large
-- API call consumption: 1 call per request
+
+- **Marketplace Product**: This is a marketplace API (path: `/mp/unicornbay/...`)
+- **Historical Data**: Returns daily snapshots - each record represents one day's EOD data
+- **ID Format**: `{contract}-{date}` (e.g., 'AAPL270115P00450000-2026-02-06')
+- **Compact Mode**: Use `compact=1` to reduce response size for high-volume requests
+- **Zero Values**: Greeks and volatility may be zero for illiquid contracts
+- **Pagination**: Max 10,000 offset, 1,000 results per page
+- **API call consumption**: 1 request = 10 API calls
+- **Rate limits**: 100,000 calls/24h, 1,000 requests/minute
+- **History**: 2-year historical depth available
