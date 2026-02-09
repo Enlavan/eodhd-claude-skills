@@ -37,6 +37,12 @@ Examples:
 
   # Bulk EOD data for exchange
   python eodhd_client.py --endpoint eod-bulk-last-day --symbol US
+
+  # Sentiment data
+  python eodhd_client.py --endpoint sentiment --symbol AAPL.US --from-date 2025-01-01 --to-date 2025-01-31
+
+  # News word weights (trending topics)
+  python eodhd_client.py --endpoint news-word-weights --symbol AAPL.US --from-date 2025-01-01 --to-date 2025-01-15 --limit 20
 """
 
 from __future__ import annotations
@@ -110,7 +116,9 @@ def build_path(endpoint: str, symbol: str | None, function: str | None = None) -
     if endpoint == "news":
         return f"/news"  # news uses 's' param, not path
     if endpoint == "sentiment":
-        return f"/sentiments"  # sentiments uses 's' param
+        return "/sentiments"  # sentiments uses 's' param
+    if endpoint == "news-word-weights":
+        return "/news-word-weights"  # uses 's' param and special filter params
     if endpoint == "insider-transactions":
         return f"/insider-transactions"  # uses 'code' param
     if endpoint == "technical":
@@ -147,6 +155,7 @@ SUPPORTED_ENDPOINTS = [
     "fundamentals",
     "news",
     "sentiment",
+    "news-word-weights",
     "insider-transactions",
     "dividends",
     "splits",
@@ -178,7 +187,7 @@ def parse_args() -> argparse.Namespace:
         epilog="""
 Supported endpoints:
   Market Data:    eod, intraday, real-time, eod-bulk-last-day
-  Fundamentals:   fundamentals, news, sentiment, insider-transactions
+  Fundamentals:   fundamentals, news, sentiment, news-word-weights, insider-transactions
   Corporate:      dividends, splits
   Technical:      technical (requires --function)
   Options:        options
@@ -186,6 +195,8 @@ Supported endpoints:
   Calendar:       calendar/earnings, calendar/ipos, calendar/splits
   Exchange:       exchange-symbol-list, exchanges-list, exchanges-details
   Screening:      screener
+
+Note: news-word-weights may have longer response times due to AI processing.
 
 Symbol format: {TICKER}.{EXCHANGE} (e.g., AAPL.US, MSFT.US, BMW.XETRA)
 For exchange-symbol-list and eod-bulk-last-day, use exchange code (e.g., US, LSE)
@@ -290,6 +301,18 @@ def main() -> int:
     # Special handling for insider-transactions endpoint
     if args.endpoint == "insider-transactions" and args.symbol:
         params["code"] = args.symbol
+
+    # Special handling for news-word-weights endpoint (different param names)
+    if args.endpoint == "news-word-weights":
+        if args.symbol:
+            params["s"] = args.symbol
+        # news-word-weights uses filter[date_from], filter[date_to], page[limit]
+        if args.from_date:
+            params["filter[date_from]"] = params.pop("from", args.from_date)
+        if args.to_date:
+            params["filter[date_to]"] = params.pop("to", args.to_date)
+        if args.limit is not None:
+            params["page[limit]"] = params.pop("limit", args.limit)
 
     query = urllib.parse.urlencode(params)
     url = args.base_url.rstrip("/") + path + "?" + query

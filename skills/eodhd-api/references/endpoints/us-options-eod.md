@@ -1,6 +1,6 @@
 # US Options EOD API
 
-Status: draft
+Status: complete
 Source: financial-apis (Options Data API)
 Docs: https://eodhd.com/financial-apis/stock-options-data-api
 Provider: EODHD

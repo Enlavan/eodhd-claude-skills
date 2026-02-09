@@ -1,6 +1,6 @@
 # Fundamentals Data API
 
-Status: draft
+Status: complete
 Source: financial-apis (Fundamental Data API)
 Docs: https://eodhd.com/financial-apis/stock-etfs-fundamental-data-feeds
 Provider: EODHD

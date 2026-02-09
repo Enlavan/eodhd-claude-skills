@@ -1,6 +1,6 @@
 # Technical Indicators API
 
-Status: draft
+Status: complete
 Source: financial-apis (Technical Indicator API)
 Docs: https://eodhd.com/financial-apis/technical-indicators-api
 Provider: EODHD

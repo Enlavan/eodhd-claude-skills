@@ -1,6 +1,6 @@
 # Macro Indicator API
 
-Status: draft
+Status: complete
 Source: financial-apis (Macroeconomics Data API)
 Docs: https://eodhd.com/financial-apis/macroeconomics-data-and-macro-indicators-api
 Provider: EODHD

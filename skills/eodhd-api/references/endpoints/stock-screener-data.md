@@ -1,6 +1,6 @@
 # Stock Screener API
 
-Status: draft
+Status: complete
 Source: financial-apis (Stock Market Screener API)
 Docs: https://eodhd.com/financial-apis/stock-market-screener-api
 Provider: EODHD

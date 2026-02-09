@@ -1,6 +1,6 @@
 # Intraday Historical Data API
 
-Status: draft
+Status: complete
 Source: financial-apis (Intraday Historical Data API)
 Docs: https://eodhd.com/financial-apis/intraday-historical-data-api
 Provider: EODHD

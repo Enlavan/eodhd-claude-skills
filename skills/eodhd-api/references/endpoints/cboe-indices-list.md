@@ -1,6 +1,6 @@
 # Cboe Indices List API
 
-Status: draft
+Status: complete
 Source: financial-apis (CBOE Europe Indices API beta)
 Docs: https://eodhd.com/financial-apis/cboe-europe-indices-api-beta
 Provider: EODHD

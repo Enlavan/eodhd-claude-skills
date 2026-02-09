@@ -1,6 +1,6 @@
 # Live/Real-Time Price Data API
 
-Status: draft
+Status: complete
 Source: financial-apis (Live Stock Prices API)
 Docs: https://eodhd.com/financial-apis/live-realtime-stocks-api
 Provider: EODHD

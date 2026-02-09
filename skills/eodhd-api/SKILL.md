@@ -27,6 +27,7 @@ Use this skill when the user asks for any of the following:
 - Exchange listings or market metadata
 - Macro-economic indicators (GDP, inflation, unemployment)
 - Corporate calendar events (earnings, dividends, splits, IPOs)
+- Insider trading activity (executive purchases, sales)
 - Bulk data exports for an exchange
 
 ## Required inputs
@@ -76,7 +77,9 @@ Use this skill when the user asks for any of the following:
 | `intraday` | Intraday bars | `--symbol`, `--interval` (1m/5m/1h) |
 | `real-time` | Live quotes | `--symbol` |
 | `fundamentals` | Company data | `--symbol` |
-| `news` | Financial news | `--symbol`, `--limit` |
+| `news` | Financial news with sentiment | `--symbol`, `--limit`, `--from-date` |
+| `sentiment` | Daily sentiment scores | `--symbol`, `--from-date`, `--to-date` |
+| `news-word-weights` | Trending topics in news | `--symbol`, `--from-date`, `--to-date`, `--limit` |
 | `technical` | Technical indicators | `--symbol`, `--function`, `--period` |
 | `options` | Options chains | `--symbol` |
 | `dividends` | Dividend history | `--symbol` |
@@ -85,10 +88,14 @@ Use this skill when the user asks for any of the following:
 | `screener` | Stock screener | `--limit`, `--offset` |
 | `calendar/earnings` | Earnings calendar | `--from-date`, `--to-date` |
 | `calendar/ipos` | IPO calendar | `--from-date`, `--to-date` |
+| `calendar/splits` | Stock splits calendar | `--from-date`, `--to-date` |
 | `economic-events` | Economic events | `--from-date`, `--to-date` |
+| `insider-transactions` | Insider trading activity | `--symbol`, `--from-date`, `--to-date`, `--limit` |
 | `exchange-symbol-list` | Exchange tickers | `--symbol` (exchange code) |
 | `exchanges-list` | All exchanges | (no symbol needed) |
 | `eod-bulk-last-day` | Bulk EOD data | `--symbol` (exchange code) |
+
+**Note**: News-related endpoints (`news`, `sentiment`, `news-word-weights`) consume 5 API calls + 5 per ticker.
 
 ## Output requirements
 
@@ -132,14 +139,29 @@ python eodhd_client.py --endpoint fundamentals --symbol MSFT.US
 # 50-day SMA
 python eodhd_client.py --endpoint technical --symbol NVDA.US --function sma --period 50
 
-# Company news
+# Company news with sentiment
 python eodhd_client.py --endpoint news --symbol TSLA.US --limit 10
+
+# Daily sentiment scores
+python eodhd_client.py --endpoint sentiment --symbol AAPL.US --from-date 2025-01-01 --to-date 2025-01-31
+
+# Trending topics in news (word weights)
+python eodhd_client.py --endpoint news-word-weights --symbol AAPL.US --from-date 2025-01-01 --to-date 2025-01-15 --limit 20
 
 # US inflation data
 python eodhd_client.py --endpoint macro-indicator --symbol USA --indicator inflation_consumer_prices_annual
 
 # Stock screener
 python eodhd_client.py --endpoint screener --limit 20
+
+# Insider transactions
+python eodhd_client.py --endpoint insider-transactions --symbol AAPL.US --from-date 2025-01-01 --limit 50
+
+# Upcoming IPOs
+python eodhd_client.py --endpoint calendar/ipos --from-date 2025-01-01 --to-date 2025-03-31
+
+# Stock splits calendar
+python eodhd_client.py --endpoint calendar/splits --from-date 2025-01-01 --to-date 2025-01-31
 ```
 
 ## References
