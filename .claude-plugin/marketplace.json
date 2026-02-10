@@ -1,0 +1,22 @@
+{
+  "name": "eodhd-claude-skills",
+  "owner": {
+    "name": "Enlavan",
+    "email": ""
+  },
+  "metadata": {
+    "description": "EODHD financial data API skills for Claude Code — 57 endpoints, Python client, analysis templates",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "eodhd-api",
+      "description": "Financial data skill for EODHD API — historical prices, fundamentals, options, technicals, news, sentiment, macro indicators, and more",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/eodhd-api"
+      ]
+    }
+  ]
+}

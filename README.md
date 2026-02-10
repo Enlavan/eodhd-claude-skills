@@ -4,6 +4,7 @@ Reusable skills and adapters for using the [EOD Historical Data (EODHD) API](htt
 
 ## Table of Contents
 
+- [Installation](#installation)
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Repository Structure](#repository-structure)
@@ -14,6 +15,36 @@ Reusable skills and adapters for using the [EOD Historical Data (EODHD) API](htt
 - [Development Status](#development-status)
 - [Contributing](#contributing)
 - [License](#license)
+
+## Installation
+
+### Claude Code (Plugin System)
+
+```bash
+# Register the marketplace
+/plugin marketplace add Enlavan/eodhd-claude-skills
+
+# Install the plugin
+/plugin install eodhd-api@eodhd-claude-skills
+```
+
+**Manage the plugin:**
+
+```bash
+/plugin update eodhd-api@eodhd-claude-skills      # Update to latest version
+/plugin enable eodhd-api@eodhd-claude-skills       # Enable
+/plugin disable eodhd-api@eodhd-claude-skills      # Disable
+/plugin uninstall eodhd-api@eodhd-claude-skills    # Uninstall
+```
+
+### Manual Setup
+
+Clone the repository and set your API token:
+
+```bash
+git clone https://github.com/Enlavan/eodhd-claude-skills.git
+export EODHD_API_TOKEN="your_token_here"
+```
 
 ## Overview
 
@@ -35,6 +66,11 @@ This repository provides a skill adapter that enables AI agents (Claude, Codex, 
 
 ```
 eodhd-claude-skills/
+├── .claude-plugin/
+│   └── marketplace.json          # Plugin manifest for Claude Code
+├── .github/
+│   └── workflows/
+│       └── release.yml           # Auto-release on version bump
 ├── skills/
 │   └── eodhd-api/
 │       ├── SKILL.md              # Primary skill definition
@@ -61,6 +97,8 @@ eodhd-claude-skills/
 ```bash
 export EODHD_API_TOKEN="your_token_here"
 ```
+
+> If you installed via the plugin system, the skill is already available in Claude Code. Just set the token and start asking for financial data.
 
 ### 2. Use the helper client
 
