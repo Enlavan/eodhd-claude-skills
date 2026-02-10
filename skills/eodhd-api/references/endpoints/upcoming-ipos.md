@@ -1,7 +1,7 @@
-# Upcoming IPOs API
+# Historical & Upcoming IPOs API
 
 Status: complete
-Source: financial-apis (Calendar Upcoming Earnings, IPOs, and Splits API)
+Source: financial-apis (Calendar API)
 Docs: https://eodhd.com/financial-apis/calendar-upcoming-earnings-ipos-and-splits
 Provider: EODHD
 Base URL: https://eodhd.com/api
@@ -11,92 +11,163 @@ Auth: api_token (query)
 
 ## Purpose
 
-Fetches upcoming and recent IPO (Initial Public Offering) data including expected pricing,
-share offerings, and deal details. Useful for tracking new market listings and IPO investment
-opportunities.
+Returns historical and upcoming IPOs in a date window. Items may include filing/amended dates, expected or effective first trading date, price range or offer price, and share count. The response supports JSON (recommended for full field coverage). Available in All-In-One, Fundamentals Data Feed plans and via "Financial Events (Calendar) & News Feed" plans.
+
+Data available from January 2015 and up to 2-3 weeks into the future.
 
 ## Parameters
 
 | Parameter | Required | Type | Description |
 |-----------|----------|------|-------------|
-| api_token | Yes | string | Your API key for authentication |
-| from | No | string (YYYY-MM-DD) | Start date for IPO data. Defaults to today |
-| to | No | string (YYYY-MM-DD) | End date for IPO data. Defaults to 7 days from today |
-| fmt | No | string | Output format: 'csv' or 'json'. Defaults to 'csv' |
+| api_token | Yes | string | Your API key |
+| from | No | string (YYYY-MM-DD) | Start date of the query window. Default: today. This parameter uses start of a trade |
+| to | No | string (YYYY-MM-DD) | End date of the query window. Default: today + 7 days. This parameter uses start of a trade |
+| fmt | No | string | json or csv (default) |
 
 ## Response (shape)
 
 ```json
 {
   "type": "IPOs",
-  "description": "Upcoming and historical IPOs",
-  "from": "2025-01-01",
-  "to": "2025-01-31",
+  "description": "Historical and upcoming IPOs",
+  "from": "2018-12-02",
+  "to": "2018-12-06",
   "ipos": [
     {
-      "code": "NEWCO",
-      "exchange": "US",
-      "name": "NewCo Technologies Inc",
-      "currency": "USD",
-      "start_date": "2025-01-15",
-      "filing_date": "2024-12-01",
-      "amended_date": "2024-12-20",
-      "price_from": 18.00,
-      "price_to": 21.00,
-      "offer_price": 19.50,
-      "shares": 10000000,
-      "deal_type": "IPO"
+      "code": "603629.SHG",
+      "name": "Jiangsu Lettall Electronic Co Ltd",
+      "exchange": "Shanghai",
+      "currency": "CNY",
+      "start_date": "2018-12-11",
+      "filing_date": "2017-06-15",
+      "amended_date": "2018-12-03",
+      "price_from": 0,
+      "price_to": 0,
+      "offer_price": 0,
+      "shares": 25000000,
+      "deal_type": "Expected"
+    },
+    {
+      "code": "SPK.MC",
+      "name": "Solarpack Corporacion Tecnologica S.A",
+      "exchange": "MCE",
+      "currency": "EUR",
+      "start_date": "2018-12-03",
+      "filing_date": "2018-11-05",
+      "amended_date": "2018-11-20",
+      "price_from": 0,
+      "price_to": 0,
+      "offer_price": 0,
+      "shares": 0,
+      "deal_type": "Expected"
     }
   ]
 }
 ```
 
-### Field Descriptions
+### Output Format
+
+**Top-level fields:**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| code | string | Ticker symbol for the new listing |
-| exchange | string | Exchange code where IPO will list (e.g., 'US', 'LSE') |
-| name | string | Company name |
-| currency | string | Currency for pricing (e.g., 'USD') |
-| start_date | string (date) | Expected or actual IPO date |
-| filing_date | string (date) | SEC/regulatory filing date |
-| amended_date | string (date)/null | Date of any amended filings |
-| price_from | number/null | Low end of expected price range |
-| price_to | number/null | High end of expected price range |
-| offer_price | number/null | Final offer price (null until priced) |
-| shares | number/null | Number of shares being offered |
-| deal_type | string | Type of offering (e.g., 'IPO', 'SPAC', 'Direct Listing') |
+| type | string | Constant label of the payload (example: IPOs) |
+| description | string | Human-readable description of the dataset |
+| from | string (YYYY-MM-DD) | Start date used for the query |
+| to | string (YYYY-MM-DD) | End date used for the query |
+| ipos | array of objects | List of IPO records for the window |
 
-### Deal Types
+**IPO record fields:**
 
-- **IPO**: Traditional initial public offering
-- **SPAC**: Special Purpose Acquisition Company merger
-- **Direct Listing**: Direct listing without traditional underwriting
-- **Spin-off**: Corporate spin-off from parent company
+| Field | Type | Description |
+|-------|------|-------------|
+| code | string | Ticker in EODHD format |
+| name | string or null | Company name |
+| exchange | string or null | Listing exchange |
+| currency | string or null | Trading currency |
+| start_date | string (YYYY-MM-DD) or null | Expected/effective first trading date (if known) |
+| filing_date | string (YYYY-MM-DD) or null | Initial filing date |
+| amended_date | string (YYYY-MM-DD) or null | Latest amended filing date |
+| price_from | number | Lower end of indicated price range (0 if not provided) |
+| price_to | number | Upper end of indicated price range (0 if not provided) |
+| offer_price | number | Final priced offer (0 if not priced yet) |
+| shares | number | Shares offered (0 if not provided) |
+| deal_type | string | Lifecycle state such as Filed, Expected, Amended, Priced |
 
 ## Example Requests
 
 ```bash
-# IPOs for the next 7 days
+# IPOs for default window (today + 7 days)
 curl "https://eodhd.com/api/calendar/ipos?api_token=demo&fmt=json"
 
 # IPOs for specific date range
-curl "https://eodhd.com/api/calendar/ipos?from=2025-01-01&to=2025-01-31&api_token=demo&fmt=json"
-
-# IPOs for next quarter
-curl "https://eodhd.com/api/calendar/ipos?from=2025-01-01&to=2025-03-31&api_token=demo&fmt=json"
+curl "https://eodhd.com/api/calendar/ipos?from=2018-12-02&to=2018-12-06&api_token=demo&fmt=json"
 
 # Using the helper client
-python eodhd_client.py --endpoint calendar/ipos --from-date 2025-01-01 --to-date 2025-01-31
+python eodhd_client.py --endpoint calendar/ipos --from-date 2026-02-10 --to-date 2026-02-17
 ```
 
 ## Notes
 
-- `offer_price` is null until the IPO is priced (usually day before or day of listing)
+- Numbers may be 0 when the value is unknown or not yet set (for example before pricing)
+- `start_date` may be null for filings without a scheduled first trading date
+- Use `deal_type` to track lifecycle changes (for example, Amended or Priced updates)
+- Deal type values include: Filed, Expected, Amended, Priced
+- `offer_price` is 0 until the IPO is priced (usually day before or day of listing)
 - `price_from` and `price_to` represent the expected pricing range from prospectus
-- `shares` represents total shares in the offering (not including overallotment)
-- `filing_date` is when initial S-1/prospectus was filed
-- `amended_date` updates when pricing or terms change
-- Required fields: code, exchange, name, start_date
+- Data available from January 2015 and up to 2-3 weeks into the future
 - API call consumption: 1 call per request
+
+## HTTP Status Codes
+
+The API returns standard HTTP status codes to indicate success or failure:
+
+| Status Code | Meaning | Description |
+|-------------|---------|-------------|
+| **200** | OK | Request succeeded. Data returned successfully. |
+| **402** | Payment Required | API limit used up. Upgrade plan or wait for limit reset. |
+| **403** | Unauthorized | Invalid API key. Check your `api_token` parameter. |
+| **429** | Too Many Requests | Exceeded rate limit (requests per minute). Slow down requests. |
+
+### Error Response Format
+
+When an error occurs, the API returns a JSON response with error details:
+
+```json
+{
+  "error": "Error message description",
+  "code": 403
+}
+```
+
+### Handling Errors
+
+**Python Example**:
+```python
+import requests
+
+def make_api_request(url, params):
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Raises HTTPError for bad status codes
+        return response.json()
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 402:
+            print("Error: API limit exceeded. Please upgrade your plan.")
+        elif e.response.status_code == 403:
+            print("Error: Invalid API key. Check your credentials.")
+        elif e.response.status_code == 429:
+            print("Error: Rate limit exceeded. Please slow down your requests.")
+        else:
+            print(f"HTTP Error: {e}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+```
+
+**Best Practices**:
+- Always check status codes before processing response data
+- Implement exponential backoff for 429 errors
+- Cache responses to reduce API calls
+- Monitor your API usage in the user dashboard

@@ -86,9 +86,11 @@ Use this skill when the user asks for any of the following:
 | `splits` | Stock splits | `--symbol` |
 | `macro-indicator` | Macro data | `--symbol` (country code), `--indicator` |
 | `screener` | Stock screener | `--limit`, `--offset` |
-| `calendar/earnings` | Earnings calendar | `--from-date`, `--to-date` |
+| `calendar/earnings` | Earnings calendar | `--from-date`, `--to-date` or `--symbol` |
+| `calendar/trends` | Earnings trends | `--symbol` (comma-separated) |
 | `calendar/ipos` | IPO calendar | `--from-date`, `--to-date` |
-| `calendar/splits` | Stock splits calendar | `--from-date`, `--to-date` |
+| `calendar/splits` | Stock splits calendar | `--from-date`, `--to-date` or `--symbol` |
+| `calendar/dividends` | Dividends calendar | `--symbol` |
 | `economic-events` | Economic events | `--from-date`, `--to-date` |
 | `insider-transactions` | Insider trading activity | `--symbol`, `--from-date`, `--to-date`, `--limit` |
 | `exchange-symbol-list` | Exchange tickers | `--symbol` (exchange code) |
@@ -166,7 +168,17 @@ python eodhd_client.py --endpoint calendar/splits --from-date 2025-01-01 --to-da
 
 ## References
 
-- Endpoint catalog: `references/endpoints.md`
-- Individual endpoint docs: `references/endpoints/*.md`
-- Analysis workflows: `references/workflows.md`
-- Output template: `templates/analysis_report.md`
+### General Documentation
+- **Getting Started**: `references/general/README.md` - Start here for setup and basics
+- **Authentication**: `references/general/authentication.md` - API tokens and security
+- **Symbol Format**: `references/general/symbol-format.md` - How to format tickers correctly
+- **Exchanges**: `references/general/exchanges.md` - Complete list of 70+ exchanges
+- **Update Times**: `references/general/update-times.md` - When data is refreshed
+- **Rate Limits**: `references/general/rate-limits.md` - Quotas and optimization
+- **Fundamentals API**: `references/general/fundamentals-api.md` - Complete guide to company fundamentals, ETFs, funds, and indices
+
+### Endpoint Documentation
+- **Endpoint catalog**: `references/endpoints.md` - Overview of all endpoints
+- **Individual endpoint docs**: `references/endpoints/*.md` - Detailed specs per endpoint
+- **Analysis workflows**: `references/workflows.md` - Common usage patterns
+- **Output template**: `templates/analysis_report.md` - Structured report format

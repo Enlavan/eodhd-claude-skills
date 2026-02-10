@@ -23,6 +23,12 @@ Examples:
   # Earnings
   python eodhd_client.py --endpoint calendar/earnings --from-date 2025-01-01 --to-date 2025-01-31
 
+  # Earnings Trends
+  python eodhd_client.py --endpoint calendar/trends --symbol AAPL.US,MSFT.US
+
+  # Dividends Calendar
+  python eodhd_client.py --endpoint calendar/dividends --symbol AAPL.US
+
   # Technical indicators
   python eodhd_client.py --endpoint technical --symbol AAPL.US --function sma --period 50
 
@@ -63,6 +69,7 @@ NO_SYMBOL_ENDPOINTS = {
     "calendar/earnings",
     "calendar/ipos",
     "calendar/splits",
+    "calendar/dividends",
     "economic-events",
 }
 
@@ -90,6 +97,8 @@ def build_path(endpoint: str, symbol: str | None, function: str | None = None) -
             return "/calendar/ipos"
         if endpoint == "calendar/splits":
             return "/calendar/splits"
+        if endpoint == "calendar/dividends":
+            return "/calendar/dividends"
         if endpoint == "economic-events":
             return "/economic-events"
         if endpoint == "screener":
@@ -121,6 +130,8 @@ def build_path(endpoint: str, symbol: str | None, function: str | None = None) -
         return "/news-word-weights"  # uses 's' param and special filter params
     if endpoint == "insider-transactions":
         return f"/insider-transactions"  # uses 'code' param
+    if endpoint == "calendar/trends":
+        return "/calendar/trends"  # uses 'symbols' param (comma-separated)
     if endpoint == "technical":
         if not function:
             raise ClientError("--function is required for endpoint=technical (e.g., sma, ema, rsi)")
@@ -168,8 +179,10 @@ SUPPORTED_ENDPOINTS = [
     "economic-events",
     # Calendar events
     "calendar/earnings",
+    "calendar/trends",
     "calendar/ipos",
     "calendar/splits",
+    "calendar/dividends",
     # Exchange/listing
     "exchange-symbol-list",
     "exchanges-list",
@@ -192,7 +205,7 @@ Supported endpoints:
   Technical:      technical (requires --function)
   Options:        options
   Macro:          macro-indicator, economic-events
-  Calendar:       calendar/earnings, calendar/ipos, calendar/splits
+  Calendar:       calendar/earnings, calendar/trends, calendar/ipos, calendar/splits, calendar/dividends
   Exchange:       exchange-symbol-list, exchanges-list, exchanges-details
   Screening:      screener
 
@@ -313,6 +326,38 @@ def main() -> int:
             params["filter[date_to]"] = params.pop("to", args.to_date)
         if args.limit is not None:
             params["page[limit]"] = params.pop("limit", args.limit)
+
+    # Special handling for calendar/dividends endpoint (uses filter parameters)
+    if args.endpoint == "calendar/dividends":
+        if args.symbol:
+            params["filter[symbol]"] = args.symbol
+        # calendar/dividends uses filter[date_from], filter[date_to], page[limit], page[offset]
+        if args.from_date:
+            params["filter[date_from]"] = params.pop("from", args.from_date)
+        if args.to_date:
+            params["filter[date_to]"] = params.pop("to", args.to_date)
+        if args.limit is not None:
+            params["page[limit]"] = params.pop("limit", args.limit)
+        if args.offset is not None:
+            params["page[offset]"] = params.pop("offset", args.offset)
+
+    # Special handling for calendar/trends endpoint (requires symbols parameter)
+    if args.endpoint == "calendar/trends":
+        if not args.symbol:
+            print("Error: --symbol is required for calendar/trends (comma-separated)", file=sys.stderr)
+            return 2
+        params["symbols"] = args.symbol
+
+    # Special handling for calendar/earnings endpoint (supports symbols parameter)
+    if args.endpoint == "calendar/earnings" and args.symbol:
+        params["symbols"] = args.symbol
+        # When symbols is provided, remove from/to parameters
+        params.pop("from", None)
+        params.pop("to", None)
+
+    # Special handling for calendar/splits endpoint (supports symbols parameter)
+    if args.endpoint == "calendar/splits" and args.symbol:
+        params["symbols"] = args.symbol
 
     query = urllib.parse.urlencode(params)
     url = args.base_url.rstrip("/") + path + "?" + query

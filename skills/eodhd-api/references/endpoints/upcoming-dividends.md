@@ -1,90 +1,161 @@
-# Historical Dividends API
+# Historical & Upcoming Dividends API
 
 Status: complete
-Source: financial-apis (Dividends API)
-Docs: https://eodhd.com/financial-apis/api-splits-dividends
+Source: financial-apis (Calendar API)
+Docs: https://eodhd.com/financial-apis/calendar-upcoming-earnings-ipos-and-splits
 Provider: EODHD
 Base URL: https://eodhd.com/api
-Path: /div/{SYMBOL}
+Path: /calendar/dividends
 Method: GET
 Auth: api_token (query)
 
 ## Purpose
 
-Fetches historical dividend data for a specified stock symbol, including key dividend dates
-(declaration, record, ex-dividend, payment) and values. Useful for income analysis, dividend
-tracking, and yield calculations.
+Returns a calendar of dividend dates filtered by symbol or by date. Supports pagination. Available in All-In-One, Fundamentals Data Feed plans and via "Financial Events (Calendar) & News Feed" plans.
+
+For dividend details, navigate to the Corporate Actions: Splits and Dividends API.
 
 ## Parameters
 
 | Parameter | Required | Type | Description |
 |-----------|----------|------|-------------|
-| {SYMBOL} | Yes | path | Ticker symbol (e.g., 'AAPL.US', 'AAPL.MX') |
-| api_token | Yes | string | Your API key for authentication |
-| from | No | string (YYYY-MM-DD) | Start date. Defaults to earliest available |
-| to | No | string (YYYY-MM-DD) | End date. Defaults to latest available |
-| fmt | No | string | Output format: 'json' or 'csv'. Defaults to 'json' |
+| api_token | Yes | string | Your API key |
+| filter[symbol] | Conditional | string | Limit results to a single ticker. Required if filter[date_eq] is not provided |
+| filter[date_eq] | Conditional | string (YYYY-MM-DD) | Exact dividend date. Required if filter[symbol] is not provided |
+| filter[date_from] | No | string (YYYY-MM-DD) | Return dividends on or after this date |
+| filter[date_to] | No | string (YYYY-MM-DD) | Return dividends on or before this date |
+| page[limit] | No | integer (1–1000, default 1000) | Max results per page |
+| page[offset] | No | integer (default 0) | Offset for pagination |
+| fmt | No | string | json only |
 
 ## Response (shape)
 
-Array of dividend records:
-
 ```json
-[
-  {
-    "date": "2024-08-09",
-    "declarationDate": "2024-07-24",
-    "recordDate": "2024-08-13",
-    "paymentDate": "2024-08-16",
-    "period": "Quarterly",
-    "value": 0.25,
-    "unadjustedValue": 0.25,
-    "currency": "USD"
+{
+  "meta": {
+    "total": 3,
+    "offset": 0,
+    "limit": 1000,
+    "symbol": "AAPL.US",
+    "date_eq": null
+  },
+  "data": [
+    { "date": "2025-08-11", "symbol": "AAPL.US" },
+    { "date": "2025-05-12", "symbol": "AAPL.US" },
+    { "date": "2025-02-10", "symbol": "AAPL.US" }
+  ],
+  "links": {
+    "next": null
   }
-]
+}
 ```
 
-### Field Descriptions
+### Output Format
+
+**Meta object:**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| date | string (date) | Ex-dividend date |
-| declarationDate | string (date) | Date dividend was declared |
-| recordDate | string (date) | Record date for dividend eligibility |
-| paymentDate | string (date) | Dividend payment date |
-| period | string | Dividend period (e.g., 'Quarterly', 'Annual') |
-| value | number | Dividend value per share (split-adjusted) |
-| unadjustedValue | number | Unadjusted dividend value (before splits) |
-| currency | string | Currency (e.g., 'USD') |
+| total | integer | Total number of results across all pages |
+| limit | integer | Max number of results returned in this page |
+| offset | integer | Offset used for this page |
+| symbol | string or null | Echo of requested symbol, if provided |
+| date_eq | string or null | Echo of requested exact date, if provided |
 
-### Key Dates Explained
+**Data array:**
 
-- **Declaration Date**: When the company announces the dividend
-- **Ex-Dividend Date**: First day stock trades without dividend rights
-- **Record Date**: Cutoff date for determining eligible shareholders
-- **Payment Date**: When dividends are actually paid
+Each item in the data array:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| date | string (YYYY-MM-DD) | Dividend date |
+| symbol | string | Ticker |
+
+**Links object:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| next | string or null | URL to the next page, or null if none |
 
 ## Example Requests
 
 ```bash
-# All dividend history for AAPL
-curl "https://eodhd.com/api/div/AAPL.US?api_token=demo&fmt=json"
+# By symbol
+curl "https://eodhd.com/api/calendar/dividends?filter[symbol]=AAPL.US&api_token=demo&fmt=json"
 
-# Dividends for specific date range
-curl "https://eodhd.com/api/div/AAPL.US?from=2020-01-01&to=2024-12-31&api_token=demo&fmt=json"
+# By date window
+curl "https://eodhd.com/api/calendar/dividends?filter[symbol]=AAPL.US&filter[date_from]=2025-01-01&filter[date_to]=2025-12-31&api_token=demo&fmt=json"
 
-# Dividends for international stock
-curl "https://eodhd.com/api/div/BMW.XETRA?api_token=demo&fmt=json"
+# By exact date
+curl "https://eodhd.com/api/calendar/dividends?filter[date_eq]=2026-01-01&api_token=demo&fmt=json"
+
+# With pagination
+curl "https://eodhd.com/api/calendar/dividends?filter[symbol]=AAPL.US&page[limit]=10&page[offset]=0&api_token=demo&fmt=json"
 
 # Using the helper client
-python eodhd_client.py --endpoint dividends --symbol AAPL.US --from-date 2020-01-01
+python eodhd_client.py --endpoint calendar/dividends --symbol AAPL.US
 ```
 
 ## Notes
 
-- `value` is split-adjusted; use `unadjustedValue` for historical accuracy
-- Ex-dividend date (`date`) is the key date for most trading purposes
-- Must own shares before ex-dividend date to receive the dividend
-- Period values include: 'Quarterly', 'Semi-Annual', 'Annual', 'Monthly', 'Special'
-- Required fields: date, value, currency
+- At least one of `filter[symbol]` or `filter[date_eq]` must be provided
+- Use `page[limit]` and `page[offset]` for large datasets
+- `filter[date_from]` and `filter[date_to]` can be used together (with `filter[symbol]`) to narrow the range
+- The `links.next` field provides the URL for the next page of results
+- JSON-only format
+- This endpoint returns dates only; for full dividend details (amounts, payment dates, etc.), use the Corporate Actions: Splits and Dividends API
 - API call consumption: 1 call per request
+
+## HTTP Status Codes
+
+The API returns standard HTTP status codes to indicate success or failure:
+
+| Status Code | Meaning | Description |
+|-------------|---------|-------------|
+| **200** | OK | Request succeeded. Data returned successfully. |
+| **402** | Payment Required | API limit used up. Upgrade plan or wait for limit reset. |
+| **403** | Unauthorized | Invalid API key. Check your `api_token` parameter. |
+| **429** | Too Many Requests | Exceeded rate limit (requests per minute). Slow down requests. |
+
+### Error Response Format
+
+When an error occurs, the API returns a JSON response with error details:
+
+```json
+{
+  "error": "Error message description",
+  "code": 403
+}
+```
+
+### Handling Errors
+
+**Python Example**:
+```python
+import requests
+
+def make_api_request(url, params):
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Raises HTTPError for bad status codes
+        return response.json()
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 402:
+            print("Error: API limit exceeded. Please upgrade your plan.")
+        elif e.response.status_code == 403:
+            print("Error: Invalid API key. Check your credentials.")
+        elif e.response.status_code == 429:
+            print("Error: Rate limit exceeded. Please slow down your requests.")
+        else:
+            print(f"HTTP Error: {e}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+```
+
+**Best Practices**:
+- Always check status codes before processing response data
+- Implement exponential backoff for 429 errors
+- Cache responses to reduce API calls
+- Monitor your API usage in the user dashboard
