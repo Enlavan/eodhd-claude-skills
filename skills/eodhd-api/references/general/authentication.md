@@ -530,6 +530,60 @@ curl "https://eodhd.com/api/user?api_token=$EODHD_API_TOKEN"
 4. Change password if account security is compromised
 5. Review where token was exposed and remove
 
+## API Access Protocols
+
+The API is accessible over both HTTPS and HTTP, across primary and legacy domains:
+
+| Domain | Protocol | Use Case |
+|--------|----------|----------|
+| `eodhd.com` | HTTPS | Recommended — secure connection |
+| `eodhistoricaldata.com` | HTTPS | Legacy domain (redirects to eodhd.com) |
+| `nonsecure.eodhd.com` | HTTP | HTTP-only API endpoint (no SSL) |
+| `nonsecure.eodhistoricaldata.com` | HTTP | HTTP-only legacy API endpoint |
+
+**Always prefer HTTPS** (`eodhd.com`) for production use.
+
+## CORS & AJAX
+
+EODHD **does not** provide `Access-Control-Allow-Origin: *` headers and **prohibits direct AJAX/browser-side API calls**. The reason is that API keys can only be used from 1-2 IPs, and browser-based calls expose the API key and enable key sharing/reselling.
+
+**Workaround for web applications**: Install a server-side proxy and route all API requests through your server. There is no need to write a custom proxy — lightweight open-source proxies work well (e.g., https://nordicapis.com/10-free-to-use-cors-proxies/).
+
+If you are currently making cross-origin requests and encounter errors, EODHD can temporarily grant access for migration purposes — contact support with your domain name.
+
+### TLS / SSL Issues
+
+If you encounter `SSL: CERTIFICATE_VERIFY_FAILED` or port 443 errors:
+
+1. **Verify your SSL library**: EODHD uses HTTP/2 with TLS 1.2+. Ensure your environment uses **OpenSSL 1.1.0 or later**.
+2. **Quick workaround**: Use `http://nonsecure.eodhd.com` instead of `https://eodhd.com` to bypass SSL entirely.
+3. **Certificate check**: EODHD's certificate is valid — verify at https://www.ssllabs.com/ssltest/analyze.html?d=eodhd.com
+4. **Legacy root CA**: The DST Root CA X3 expiration (September 2021) may cause issues on older systems. See: https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/
+
+## WebSocket Authentication
+
+For real-time WebSocket connections, the same `api_token` is used during the connection handshake. The EODHD WebSocket proxy validates the token to confirm subscription status and permitted access level (markets and symbol count).
+
+See `../endpoints/websockets-realtime.md` for full WebSocket documentation.
+
+## API Key FAQ
+
+### Where to Enter the API Key
+
+EODHD uses a REST API. The API key goes into the URL as a query parameter: `?api_token=YOUR_KEY`. For example, to get EOD data for AAPL: `https://eodhd.com/api/eod/AAPL.US?api_token=YOUR_KEY`
+
+### Does the API Key Change When Switching Subscription?
+
+No. Switching subscription plans within the same account (same email) does not change the API key. A different API key would only result from creating an entirely new account with a different email.
+
+### How Many Machines Per API Key?
+
+**1 PC per 1 API key**. Per EODHD Terms of Service (section 5.2), the user is responsible for maintaining the confidentiality of credentials and is not entitled to disclose them to any other person.
+
+### WKN Lookup
+
+EODHD does not support stock data selection via WKN (Wertpapierkennnummer). WKN is not unique — tickers on several markets can share the same WKN. Use `TICKER + EXCHANGE` format instead.
+
 ## Related Resources
 
 - **API Documentation**: https://eodhd.com/financial-apis/

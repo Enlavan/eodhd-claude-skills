@@ -105,6 +105,9 @@ python eodhd_client.py --endpoint calendar/dividends --symbol AAPL.US
 - JSON-only format
 - This endpoint returns dates only; for full dividend details (amounts, payment dates, etc.), use the Corporate Actions: Splits and Dividends API
 - API call consumption: 1 call per request
+- **Dividend currency**: By default, the currency is the same as for end-of-day data in most cases. However, if it differs, the `currency` field in the dividend data indicates the actual currency.
+- **YOC (Yield on Cost)**: EODHD provides dividends and daily stock prices. To calculate YOC, divide the latest dividend amount by the stock price on a given day. This must be calculated on your side.
+- **Adjusted dividends**: All dividends provided by EODHD are **split-adjusted**.
 
 ## HTTP Status Codes
 

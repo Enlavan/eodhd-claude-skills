@@ -12,25 +12,25 @@ EODHD implements rate limits and API call quotas to ensure fair usage and system
 
 Each successful API request consumes a certain number of API calls from your quota:
 
-| Endpoint Type | Calls Consumed | Example |
-|---------------|----------------|---------|
-| Most endpoints | 1 call | EOD prices, fundamentals, splits |
-| News endpoints | 5 + (5 × tickers) | News for 2 tickers = 5 + 10 = 15 calls |
-| Sentiment | 5 + (5 × tickers) | Sentiment for 1 ticker = 5 + 5 = 10 calls |
-| News word weights | 5 + (5 × tickers) | Word weights for 3 tickers = 5 + 15 = 20 calls |
-| Bulk downloads | 1 call | Entire exchange EOD data in one call |
-| Failed requests | 0 calls | Errors don't count against quota |
+| Endpoint Type | Calls Consumed                     | Example |
+|---------------|------------------------------------|---------|
+| Most endpoints | 1 call                             | EOD prices, fundamentals, splits |
+| News endpoints | 5 + (5 × tickers)                  | News for 2 tickers = 5 + 10 = 15 calls |
+| Sentiment | 5 + (5 × tickers)                  | Sentiment for 1 ticker = 5 + 5 = 10 calls |
+| News word weights | 5 + (5 × tickers)                  | Word weights for 3 tickers = 5 + 15 = 20 calls |
+| Bulk downloads | 100 call (EOD)  | Entire exchange data in one call |
+| Failed requests (HTTP errors) | 0 calls                            | Server errors don't count against quota |
+| Invalid symbol requests | 1 call                             | Wrong symbols still return a response and count |
 
-### Standard Endpoints (1 Call Each)
+### Standard Endpoints 
 
 The following endpoints consume **1 API call** per request:
 
 **Market Data**:
 - End-of-day prices (`/eod/{TICKER}`)
 - Intraday data (`/intraday/{TICKER}`)
-- Real-time quotes (`/real-time/{TICKER}`)
+- Live (delayed) quotes (`/real-time/{TICKER}`)
 - Technical indicators (`/technical/{TICKER}`)
-- Options data (`/options/{TICKER}`)
 
 **Fundamentals**:
 - Company fundamentals (`/fundamentals/{TICKER}`)
@@ -80,18 +80,6 @@ These endpoints have higher consumption due to AI processing:
 
 ## Plan-Based Quotas
 
-### Monthly API Call Limits
-
-Typical plan structures (check current pricing):
-
-| Plan | Monthly Calls | Daily Limit | Notes |
-|------|--------------|-------------|-------|
-| Free/Demo | 100-500 | 20-50 | Limited symbols, delayed data |
-| Starter | 20,000 | 1,000 | Basic access |
-| Investor | 50,000 | 2,500 | Standard features |
-| Professional | 100,000 | 5,000 | Full access |
-| All-In-One | 200,000+ | 10,000+ | All features |
-| Enterprise | Custom | Custom | Tailored limits |
 
 **Note**: Actual limits depend on your specific subscription. Check your account dashboard for exact quotas.
 
@@ -105,20 +93,54 @@ In addition to monthly quotas, there are daily rate limits:
 - Free: 20-50 requests/day
 - Paid plans: 1,000-10,000+ requests/day
 
-**Reset Time**: Daily limits reset at 00:00 UTC
+**Reset Time**: Daily limits reset at **midnight GMT (00:00 GMT)**
+
+**Important**: The counter is refreshed on **the first API request made after midnight GMT**. Until that first request is sent, the counter may still display the number of API calls from the last active day. There is no manual or on-demand reset option.
 
 ### Per-Second Rate Limits
 
-To prevent API abuse, there are also per-second rate limits:
+Rate limits are enforced at the API gateway level:
 
-| Plan | Requests/Second | Burst Allowance |
-|------|----------------|-----------------|
-| Free | 1-2 req/sec | Up to 5 requests |
-| Starter | 5 req/sec | Up to 20 requests |
-| Professional | 10 req/sec | Up to 50 requests |
-| Enterprise | 20+ req/sec | Up to 100+ requests |
+| Limit Type | Rate | Burst | Description |
+|------------|------|-------|-------------|
+| REST API requests | ~17 requests/sec (~1,000/min) | 400 | General API endpoint rate limit |
 
-**Burst Allowance**: Short burst of requests above the per-second limit before throttling kicks in.
+Requests exceeding the rate limit receive an **HTTP 429 (Too Many Requests)** response. Excess requests are rejected immediately (not queued).
+
+**Note**: The per-minute rate limit does **not** increase when you purchase additional daily API calls. Doubling your daily call quota does not double the per-minute limit.
+
+### Symbols Per Request
+
+| Request Type | Recommended | Maximum | Notes |
+|-------------|-------------|---------|-------|
+| **Bulk download** | Entire exchange | Entire exchange | 1 call (EOD) or 100 calls (live). US = 45,000+ tickers |
+| **Standard request with `s` parameter** | 15-20 symbols | ~100 symbols | URL becomes extremely long at high counts |
+| **Batch real-time** | 15-20 symbols | ~100 symbols | Same URL length constraint |
+
+### No Push API
+
+EODHD provides a **REST API only** (pull-based). There is no push API that sends data to your endpoints. For real-time streaming, use the WebSocket API.
+
+### API Request History
+
+EODHD does **not** keep user request history data — only the latest usage counters. With hundreds of millions of requests per day across all users, storing per-request history is not feasible.
+
+### 502 Error During Maintenance
+
+EODHD performs technical maintenance between **5:30 and 6:00 GMT** daily. Requests during this window have an increased risk of encountering **502 errors**. Avoid scheduling automated data fetches during this period.
+
+### X-RateLimit Headers
+
+The `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` fields are **HTTP response headers** — they are included in the HTTP response, not in the WebSocket data stream or response body. Access them through your HTTP client's header-reading mechanism.
+
+### WebSocket Limits
+
+WebSocket streaming does **not** have per-request rate limits. Instead, limits apply to:
+
+- **Concurrent connections** — Based on subscription tier
+- **Symbols per connection** — Based on subscription tier (default 50, upgradeable)
+
+See `pricing-and-plans.md` for WebSocket tier details.
 
 ## Rate Limit Headers
 
@@ -540,9 +562,29 @@ If you consistently hit rate limits:
 4. Upgrade through dashboard
 5. New limits apply immediately
 
+## HTTP Error Codes
+
+| HTTP Code | Meaning |
+|-----------|---------|
+| 200 | Success |
+| 401 | Unauthorized — invalid or missing API key |
+| 403 | Forbidden — endpoint not available for your plan |
+| 429 | Too Many Requests — rate limit exceeded |
+| 500 | Server Error — retry after a short delay |
+
+## SDK Quota Management
+
+Some official SDKs include built-in quota management:
+
+- **R package (eodhdR2)**: Local caching and quota tracking
+- **MCP Server**: Rate limiting and retry logic built in
+
+See `sdks-and-integrations.md` for full SDK details.
+
 ## Related Resources
 
 - **Authentication**: See `authentication.md`
+- **Pricing & Plans**: See `pricing-and-plans.md` for quota details per plan
 - **User endpoint**: `/api/user` for quota checking
 - **Account dashboard**: Monitor usage in real-time
 - **Support**: Contact for custom enterprise limits

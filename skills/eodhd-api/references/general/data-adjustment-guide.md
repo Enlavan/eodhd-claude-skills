@@ -1266,6 +1266,31 @@ if adjusted_close is None:
 
 ---
 
+## Spinoffs and Mergers
+
+### Mergers
+
+Mergers are a type of corporate action that EODHD does not yet have a dedicated API for, though it is a planned improvement.
+
+### Spinoffs
+
+Spinoffs may appear as part of the **Splits API**. EODHD's data sources do not differentiate between splits and spinoffs, but you can distinguish them by looking at the split ratio:
+
+- **Splits** use clean, round figures: `2:1`, `5:1`, `10:1`
+- **Spinoffs** use "odd" figures: `1324:1000`, `768:567`
+
+If you see an unusual ratio, it is most likely a spinoff rather than a split.
+
+### Ticker Change API
+
+For tracking symbol changes related to mergers, acquisitions, or rebranding, EODHD provides the **Symbol Change History API**, available for US stocks since 2022:
+
+```
+https://eodhd.com/financial-apis/exchanges-api-trading-hours-and-stock-market-holidays#Symbol_Change_History
+```
+
+---
+
 ## Summary
 
 ### Key Takeaways

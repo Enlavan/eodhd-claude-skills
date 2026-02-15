@@ -85,6 +85,8 @@ python eodhd_client.py --endpoint macro-indicator --symbol USA --indicator gdp_c
 - Values are in the units specified by the indicator (%, USD, count, etc.)
 - Data sourced from World Bank and other official sources
 - API call consumption: 1 call per request
+- **Data sources**: EODHD uses more than 5 sources for macroeconomic data and compiles it internally. The primary source is the [World Bank](https://www.worldbank.org/en/home), supplemented by government news and publications.
+- **Fertility indicator**: The `fertility_rate` indicator represents the **birth rate** (total fertility rate per woman).
 
 ## HTTP Status Codes
 

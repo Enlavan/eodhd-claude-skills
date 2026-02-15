@@ -262,8 +262,11 @@ When constructing API URLs, special characters should be encoded:
 |-----------|-------------|---------|
 | `.` | `%2E` | `BRK%2EA.US` |
 | `^` | `%5E` | `%5EGSPC.US` |
+| `&` | `%26` | `M%26M.NSE` |
 | Space | `%20` | (avoid spaces) |
 | `/` | `%2F` | (avoid in tickers) |
+
+**Important**: The `&` character is a URL query parameter delimiter. If a ticker name contains `&` (e.g., `M&M.NSE`), the part after `&` will be interpreted as a separate query parameter. Always encode `&` as `%26` in ticker names.
 
 **Note**: Most HTTP libraries handle URL encoding automatically.
 

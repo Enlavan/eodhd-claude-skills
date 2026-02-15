@@ -452,6 +452,10 @@ python eodhd_client.py --endpoint economic-events --from-date 2025-01-01 --to-da
 - Use `comparison` filter to get only specific comparison types
 - Maximum 1000 results per request; use offset for pagination
 - API call consumption: 1 call per request
+- **Timezone**: All event timestamps are in **UTC**.
+- **From/to parameters and limit**: By default, the API returns only 50 events per response. To access older events, use the `&limit=` parameter and specify `from` and `to` dates precisely. For example, to retrieve events from the year 2020, use both `&from=2020-01-01&to=2020-12-31` along with an appropriate limit.
+- **Offset beyond 1000**: If the maximum offset of 1000 is not enough, use the `from` and `to` parameters in conjunction with `offset` to paginate deeper into history by narrowing the date range.
+- **Data depth**: Economic events data is available from **2020** onwards.
 
 ## HTTP Status Codes
 

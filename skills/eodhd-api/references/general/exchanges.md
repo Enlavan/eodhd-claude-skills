@@ -233,6 +233,30 @@ curl "https://eodhd.com/api/exchanges-list?api_token=YOUR_TOKEN"
 - **Exchange Symbol List API**: `/exchange-symbol-list/{EXCHANGE_CODE}` - List all symbols on an exchange
 - **Symbol Search API**: `/search/{QUERY}` - Search for symbols by name or ticker
 
+## Data Freshness by Type
+
+| Data Type          | Freshness | Notes |
+|--------------------|-----------|-------|
+| EOD Prices         | After market close | Daily OHLCV, adjusted for splits/dividends |
+| Intraday           | 2–3 hours after close | 1m, 5m, 1h bars |
+| Real-Time (WebSocket) | < 50 ms | US stocks, Forex, Crypto only |
+| Delayed Quotes     | 15–20 min (stocks), ~1 min (forex) | REST API live endpoint |
+| Fundamentals       | Varies | Updated as filings are published |
+
+## Known Coverage Gaps
+
+Frequently requested but not yet available or limited:
+
+- Expanded Japan, Singapore coverage
+- Milan Exchange (expanded)
+- India (expanded)
+- Saudi Arabia
+
+## In Development
+
+- Earnings call transcripts
+- SEC reports in JSON format
+
 ## Notes
 
 1. Exchange codes are case-sensitive in some contexts

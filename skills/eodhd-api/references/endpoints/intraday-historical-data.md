@@ -168,6 +168,15 @@ Use online converters or programming languages to convert between dates and Unix
 - **Volume**: Actual traded volume for that interval
 - **Gaps**: Data may have gaps for low-volume periods or market closures
 - **Default range**: Last 120 days if no from/to specified
+- **Intraday data is unadjusted**: Prices are not adjusted for splits or dividends. To adjust, use the splits/dividends data (https://eodhd.com/financial-apis/api-splits-dividends) or obtain a coefficient from the EOD API: `k = adjusted_close / close`, then `adjusted_open = open * k`, `adjusted_high = high * k`, `adjusted_low = low * k`. Calculate `k` for **each day** as it changes on every split or dividend. See also the [Data Adjustment Guide](../general/data-adjustment-guide.md).
+- **Timestamp meaning**: The timestamp is the **opening** of the candle. The data relates to the interval starting at that timestamp.
+- **Missing 1-minute bars**: Pre-market 1-minute data for stocks can have gaps due to low volume. Data within regular market hours is usually complete for top stocks.
+- **Null values**: Low-volume stocks that may have no trades for several days can return null values in intraday data.
+- **Funds**: Intraday data is available for funds.
+- **UTC vs EST offset**: UTC does not observe daylight saving time, but New York does. The difference between UTC and Eastern time is either 5 hours (EST, November–March) or 4 hours (EDT, March–November). Account for this when converting timestamps.
+- **1-minute vs 5-minute data sources**: 1-minute and 5-minute data currently come from different sources. 1-minute data comes from the consolidated CTA/UTP feed (aggregated from all US exchanges, including pre/post-market). 5-minute data comes from a single venue. EODHD recommends using **1-minute intervals** as the more comprehensive and precise option.
+- **1-minute close vs EOD close**: The daily closing price is formed from the closing auction, while the last 1-minute candle is simply the last candle of the day. These may differ. The Intraday API is not intended for obtaining the official daily close price.
+- **CTA/UTP consolidated data**: EODHD uses consolidated data from CTA/UTP feeds, which aggregates data from all US exchanges. Minor discrepancies with other sources may occur if they use data from a single exchange only.
 
 ## HTTP Status Codes
 

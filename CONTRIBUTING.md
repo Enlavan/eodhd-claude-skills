@@ -11,7 +11,7 @@ Many endpoint files in `skills/eodhd-api/references/endpoints/` are currently st
 **High Priority:**
 - `sentiment-data.md` - Sentiment analysis API
 - `us-options-contracts.md` - Options contracts listing
-- `realtime-websockets.md` - WebSocket streaming
+- `websockets-realtime.md` - WebSocket streaming
 - `us-tick-data.md` - Tick-level data
 
 **Medium Priority:**

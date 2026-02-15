@@ -91,6 +91,29 @@ curl "https://eodhd.com/api/ticks/GOOGL.US?from=2025-01-10&to=2025-01-10&limit=5
 - For OHLCV bars, use the intraday endpoint instead
 - API call consumption: Higher than standard endpoints due to data volume
 - Maximum 10,000 ticks per request
+- **Building OHLCV from ticks**: Aggregating OHLCV data from tick data is not simply taking the first/max/min/last prices. The process depends on the **sale-condition** of each tick — many ticks may be excluded from the calculation based on conditions from the exchanges. See: https://www.utpplan.com/DOC/UtpBinaryOutputSpec.pdf
+- **Timestamps: seconds vs milliseconds**: The `from` and `to` parameters must be specified in **seconds** (Unix timestamp). The result timestamps are returned in **milliseconds**.
+- **Dark pool ticks**: Ticks where the market center (`mkt`) field contains `D` are **dark pool** trades (off-exchange).
+- **Market center (`mkt`) field codes**:
+
+| Code | Exchange |
+|------|----------|
+| X | NASDAQ |
+| T | NASDAQ |
+| B | NASDAQ |
+| Q | NASDAQ |
+| R | NASDAQ |
+| N | NYSE |
+| C | NYSE |
+| P | NYSE |
+| A | NYSE |
+| K | CBOE |
+| Y | CBOE |
+| J | CBOE |
+| W | CBOE |
+| Z | CBOE |
+| V | IEX |
+| S, u, U, ?, a | OTC |
 
 ## Use Cases
 

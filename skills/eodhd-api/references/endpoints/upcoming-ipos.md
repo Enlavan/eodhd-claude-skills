@@ -117,6 +117,8 @@ python eodhd_client.py --endpoint calendar/ipos --from-date 2026-02-10 --to-date
 - `price_from` and `price_to` represent the expected pricing range from prospectus
 - Data available from January 2015 and up to 2-3 weeks into the future
 - API call consumption: 1 call per request
+- **N/A on upcoming IPOs**: A `n/a` value for the ticker code means the future ticker was not yet known when the entry was added. Some filed IPOs never become listed (e.g., a company may file but never get approved). To find the actual ticker code for a successful IPO, use the company name from this API to look it up via the **Search API**.
+- **Bulk calendar for IPOs**: The Calendar IPO API is essentially a bulk endpoint — it provides data for upcoming IPOs across **all exchanges** when no symbol filter is applied.
 
 ## HTTP Status Codes
 

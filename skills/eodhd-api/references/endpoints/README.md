@@ -4,7 +4,7 @@ This folder contains one stub file per endpoint.
 
 ## Endpoints
 
-- Realtime Websockets API (realtime-websockets.md)
+- WebSockets Real-Time Data API (websockets-realtime.md)
 - Cboe Index Data API (cboe-index-data.md)
 - Cboe Indices List API (cboe-indices-list.md)
 - Company News API (company-news.md)
@@ -20,6 +20,7 @@ This folder contains one stub file per endpoint.
 - Intraday Historical Data API (intraday-historical-data.md)
 - Live Price Data API (live-price-data.md)
 - Macro Indicator API (macro-indicator.md)
+- Marketplace Tick Data API (marketplace-tick-data.md)
 - Illio Market Insights Best Worst API (illio-market-insights-best-worst.md)
 - Illio Market Insights Beta Bands API (illio-market-insights-beta-bands.md)
 - Illio Market Insights Largest Volatility API (illio-market-insights-largest-volatility.md)

@@ -170,12 +170,16 @@ python eodhd_client.py --endpoint calendar/splits --from-date 2025-01-01 --to-da
 
 ### General Documentation
 - **Getting Started**: `references/general/README.md` - Start here for setup and basics
-- **Authentication**: `references/general/authentication.md` - API tokens and security
+- **Authentication**: `references/general/authentication.md` - API tokens, protocols (HTTPS/HTTP), CORS, security
 - **Symbol Format**: `references/general/symbol-format.md` - How to format tickers correctly
-- **Exchanges**: `references/general/exchanges.md` - Complete list of 70+ exchanges
+- **Exchanges**: `references/general/exchanges.md` - Complete list of 70+ exchanges, coverage gaps
 - **Update Times**: `references/general/update-times.md` - When data is refreshed
-- **Rate Limits**: `references/general/rate-limits.md` - Quotas and optimization
+- **Rate Limits**: `references/general/rate-limits.md` - Quotas (~17 req/sec), optimization, error codes
 - **Fundamentals API**: `references/general/fundamentals-api.md` - Complete guide to company fundamentals, ETFs, funds, and indices
+- **Pricing & Plans**: `references/general/pricing-and-plans.md` - Subscription tiers, WebSocket limits, marketplace
+- **SDKs & Integrations**: `references/general/sdks-and-integrations.md` - Official Python/.NET/R SDKs, MCP Server, tools
+- **Versioning**: `references/general/versioning.md` - API stability guarantees, backwards-compatibility
+- **Glossary**: `references/general/glossary.md` - Financial, technical, and EODHD-specific terms
 
 ### Endpoint Documentation
 - **Endpoint catalog**: `references/endpoints.md` - Overview of all endpoints

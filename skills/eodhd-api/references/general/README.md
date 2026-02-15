@@ -12,9 +12,13 @@ This directory contains general information about working with the EODHD API, in
 
 ### Reference Guides
 
-4. **[Exchanges](exchanges.md)** - Comprehensive list of supported exchanges
+4. **[Exchanges](exchanges.md)** - Comprehensive list of supported exchanges, coverage gaps
 5. **[Update Times](update-times.md)** - When data is updated for each market
 6. **[Fundamentals API](fundamentals-api.md)** - Complete guide to company fundamentals, ETFs, funds, and indices
+7. **[Pricing & Plans](pricing-and-plans.md)** - Subscription tiers, WebSocket limits, marketplace
+8. **[SDKs & Integrations](sdks-and-integrations.md)** - Official SDKs, MCP Server, third-party tools
+9. **[Versioning](versioning.md)** - API stability guarantees, backwards-compatibility policy
+10. **[Glossary](glossary.md)** - Financial, technical, and EODHD-specific terms
 
 ## Documentation Overview
 
@@ -287,12 +291,21 @@ Found an error or have a suggestion?
 
 | Document | Topics Covered | When to Use |
 |----------|---------------|-------------|
-| [authentication.md](authentication.md) | API tokens, security, environment setup | Setting up authentication |
+| [authentication.md](authentication.md) | API tokens, security, protocols, CORS, environment setup | Setting up authentication |
 | [symbol-format.md](symbol-format.md) | Ticker formats, exchange codes, special characters | Formatting symbols correctly |
-| [exchanges.md](exchanges.md) | Supported exchanges, trading hours, coverage | Finding exchange codes |
+| [exchanges.md](exchanges.md) | Supported exchanges, trading hours, coverage, known gaps | Finding exchange codes |
 | [update-times.md](update-times.md) | Data refresh schedules, market hours | Planning data fetches |
-| [rate-limits.md](rate-limits.md) | Quotas, rate limiting, optimization | Managing API usage |
+| [rate-limits.md](rate-limits.md) | Quotas, rate limiting (~17 req/sec), optimization | Managing API usage |
 | [fundamentals-api.md](fundamentals-api.md) | Company fundamentals, ETF/fund data, filter parameters, date filtering | Fetching financial statements and company data |
+| [fundamentals-faq.md](fundamentals-faq.md) | Fundamentals FAQ: null values, CSV export, earnings, financials, ETF/fund specifics | Answering common fundamentals questions |
+| [forex-data-notes.md](forex-data-notes.md) | Forex market hours, EOD definition, volume, exchange rate source | Understanding forex data behavior |
+| [crypto-data-notes.md](crypto-data-notes.md) | Crypto data sources, volume aggregation, price discrepancies, market cap | Understanding crypto data behavior |
+| [indices-data-notes.md](indices-data-notes.md) | Index access, live data, historical components, price vs total return | Understanding indices data behavior |
+| [general-data-faq.md](general-data-faq.md) | ISINs, identifiers, data formats, decimals, adjusted close, GBX/GBP, OTC, warrants, data quality, error codes, XETRA vs F, back-adjustments | Answering miscellaneous data questions |
+| [pricing-and-plans.md](pricing-and-plans.md) | Subscription tiers, WebSocket limits, B2B vs self-serve | Understanding plan requirements |
+| [sdks-and-integrations.md](sdks-and-integrations.md) | Official SDKs, MCP Server, third-party integrations | Choosing client libraries and tools |
+| [versioning.md](versioning.md) | API stability, backwards compatibility, breaking changes | Understanding API change policy |
+| [glossary.md](glossary.md) | Financial, technical, EODHD-specific terms | Quick term reference |
 
 ---
 

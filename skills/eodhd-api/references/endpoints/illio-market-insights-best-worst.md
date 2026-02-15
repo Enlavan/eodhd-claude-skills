@@ -1,81 +1,141 @@
-# Illio Market Insights Best Worst API
+# Illio Market Insights — Best and Worst Days API
 
-Status: stub
-Source: TBD (financial-apis or marketplace)
-Provider: TBD
-Base URL: TBD
-Path: TBD
-Method: TBD
-Auth: TBD
+Status: complete
+Source: marketplace (illio)
+Provider: illio via EODHD Marketplace
+Base URL: `https://eodhd.com/api/mp/illio/chapters`
+Path: `/best-and-worst/{id}`
+Method: GET
+Auth: `api_token` query parameter
 
 ## Purpose
-TBD.
+
+Returns data about instruments with the largest one-day gains and losses over the last year. Identifies which index constituents had the biggest single-day price swings, useful for understanding potential future moves and managing risk.
+
+**Use cases**:
+- Identify stocks with the largest single-day price moves
+- Assess tail risk for individual constituents
+- Screen for event-driven volatility and momentum
+- Understand historical price shock magnitude for position sizing
+
+## Plans & API Calls
+
+This is a **Marketplace product** — its rate limits are counted separately from the main EODHD plans.
+
+| Limit | Value |
+|-------|-------|
+| API calls per 24 hours | 100,000 |
+| API requests per minute | 1,000 |
+| API calls per request | 10 (1 request = 10 API calls) |
+
+> The 24-hour period is counted differently for Marketplace products compared to the main EODHD plans.
 
 ## Parameters
-- Required: TBD
-- Optional: TBD
+
+### Path (required)
+
+| Parameter | Type | Constraints | Description |
+|-----------|------|-------------|-------------|
+| `id` | string | enum: `SnP500`, `DJI`, `NDX` | Index watchlist identifier |
+
+- `SnP500` — S&P 500 Index
+- `DJI` — Dow Jones Industrial Average
+- `NDX` — Nasdaq-100 Index
+
+### Query (required)
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `api_token` | string | Your API key |
 
 ## Response (shape)
-TBD.
 
-## Example request
+```json
+{
+  "insightId": "BEST_AND_WORST_DAYS",
+  "categoryId": "PERFORMANCE",
+  "title": "Largest 1 Day Moves",
+  "watchlistName": "US 500 Stocks",
+  "insight": {
+    "id": "BEST_AND_WORST_DAYS",
+    "title": "Which of these instruments had the largest one day moves over the last year?",
+    "whyImportant": "When considering allocations or strategies, you should be mindful of these large single day swings.",
+    "description": "Over the last year, FISV had the largest one day gain and GL had the largest one day loss.",
+    "stats": [
+      { "text": "Over the last year, FISV, SMCI and DELL had the largest one-day gains with 75.7%, 35.9% and 31.6%." }
+    ]
+  },
+  "chart": {
+    "title": "Largest 1 Day Moves Over Past Year",
+    "data": {
+      "best": [
+        { "label": "Fiserv Inc.", "value": 75.7 }
+      ],
+      "worst": [
+        { "label": "Globe Life Inc", "value": -53.1 }
+      ]
+    }
+  }
+}
+```
+
+### Response Field Definitions
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `insightId` | string | Always `"BEST_AND_WORST_DAYS"` |
+| `categoryId` | string | Always `"PERFORMANCE"` |
+| `title` | string | Human-readable insight title |
+| `watchlistName` | string | Name of the index |
+| `insight.id` | string | Insight identifier |
+| `insight.title` | string | Question the insight answers |
+| `insight.whyImportant` | string | Explanation of why this metric matters |
+| `insight.description` | string | Summary identifying the best and worst performers |
+| `insight.stats[]` | array | Key statistics — top 3 gains and top 3 losses with percentages |
+| `chart.title` | string | Chart title |
+| `chart.data.best[]` | array | Instruments with the largest one-day **gains** |
+| `chart.data.best[].label` | string | Instrument name |
+| `chart.data.best[].value` | float | Largest single-day gain (%) — positive |
+| `chart.data.worst[]` | array | Instruments with the largest one-day **losses** |
+| `chart.data.worst[].label` | string | Instrument name |
+| `chart.data.worst[].value` | float | Largest single-day loss (%) — negative |
+
+> **Note**: Unlike other illio endpoints, this response uses `chart.data.best[]` and `chart.data.worst[]` instead of `chart.data.items[]`.
+
+## Example Requests
+
+### Get S&P 500 best and worst days
+
 ```bash
-# TBD
+curl "https://eodhd.com/api/mp/illio/chapters/best-and-worst/SnP500?api_token=YOUR_API_TOKEN"
+```
+
+### Get Nasdaq-100 best and worst days
+
+```bash
+curl "https://eodhd.com/api/mp/illio/chapters/best-and-worst/NDX?api_token=YOUR_API_TOKEN"
+```
+
+### Demo access
+
+```bash
+curl "https://eodhd.com/api/mp/illio/chapters/best-and-worst/SnP500?api_token=demo"
 ```
 
 ## Notes
-- TBD
+
+- **Marketplace product**: Requires a separate illio marketplace subscription, not included in main EODHD plans.
+- **Top movers**: The `best` and `worst` arrays are sorted by magnitude — largest moves first.
+- **One-year lookback**: Data covers the last year of trading.
+- **Stats include top 3**: The `stats` array provides the top 3 gainers and top 3 losers with their percentages.
+- **Supported indices**: S&P 500 (`SnP500`), Dow Jones (`DJI`), Nasdaq-100 (`NDX`).
+- **Disclaimer**: Data does not constitute financial advice or investment recommendations.
 
 ## HTTP Status Codes
-
-The API returns standard HTTP status codes to indicate success or failure:
 
 | Status Code | Meaning | Description |
 |-------------|---------|-------------|
 | **200** | OK | Request succeeded. Data returned successfully. |
-| **402** | Payment Required | API limit used up. Upgrade plan or wait for limit reset. |
-| **403** | Unauthorized | Invalid API key. Check your `api_token` parameter. |
-| **429** | Too Many Requests | Exceeded rate limit (requests per minute). Slow down requests. |
-
-### Error Response Format
-
-When an error occurs, the API returns a JSON response with error details:
-
-```json
-{
-  "error": "Error message description",
-  "code": 403
-}
-```
-
-### Handling Errors
-
-**Python Example**:
-```python
-import requests
-
-def make_api_request(url, params):
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()  # Raises HTTPError for bad status codes
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 402:
-            print("Error: API limit exceeded. Please upgrade your plan.")
-        elif e.response.status_code == 403:
-            print("Error: Invalid API key. Check your credentials.")
-        elif e.response.status_code == 429:
-            print("Error: Rate limit exceeded. Please slow down your requests.")
-        else:
-            print(f"HTTP Error: {e}")
-        return None
-    except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
-        return None
-```
-
-**Best Practices**:
-- Always check status codes before processing response data
-- Implement exponential backoff for 429 errors
-- Cache responses to reduce API calls
-- Monitor your API usage in the user dashboard
+| **401** | Unauthorized | Invalid or missing API key. |
+| **403** | Forbidden | No access to this marketplace product. |
+| **429** | Too Many Requests | Rate limit exceeded (1,000 req/min or 100,000 calls/24h). |

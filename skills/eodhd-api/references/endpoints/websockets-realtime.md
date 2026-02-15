@@ -1,26 +1,33 @@
 # WebSockets Real-Time Data API
 
-**Purpose**: Stream real-time market data for US stocks, Forex pairs, and cryptocurrencies via WebSocket protocol
-**Last Updated**: 2024-11-27
-**API Calls Consumption**: Does not consume API calls
-**Available In Plans**: All-In-One, EOD+Intraday — All World Extended plans
+Status: complete
+Source: financial-apis
+Provider: EODHD (sourced from Finage, proxied via EODHD ACDC service)
+Base URL: `wss://ws.eodhistoricaldata.com`
+Path: `/ws/{market}` where market is `us`, `us-quote`, `forex`, or `crypto`
+Method: WebSocket (persistent connection)
+Auth: `api_token` query parameter validated during handshake
+API Calls Consumption: Does not consume API calls
+Available In Plans: All-In-One, EOD+Intraday — All World Extended plans
 
 ---
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [What is WebSocket Protocol](#what-is-websocket-protocol)
-3. [Data Availability](#data-availability)
-4. [Updates & Latency](#updates--latency)
-5. [Endpoints](#endpoints)
-6. [Subscribe / Unsubscribe](#subscribe--unsubscribe)
-7. [Response Schemas](#response-schemas)
-8. [Symbol Limits & Usage Notes](#symbol-limits--usage-notes)
-9. [Python Implementation](#python-implementation)
-10. [Testing Tools](#testing-tools)
-11. [API Comparison Guide](#api-comparison-guide)
-12. [Best Practices](#best-practices)
+2. [Connection Flow](#connection-flow)
+3. [What is WebSocket Protocol](#what-is-websocket-protocol)
+4. [Data Availability](#data-availability)
+5. [Updates & Latency](#updates--latency)
+6. [Endpoints](#endpoints)
+7. [Subscribe / Unsubscribe](#subscribe--unsubscribe)
+8. [Response Schemas](#response-schemas)
+9. [Symbol Limits & Usage Notes](#symbol-limits--usage-notes)
+10. [Python Implementation](#python-implementation)
+11. [Testing Tools](#testing-tools)
+12. [API Comparison Guide](#api-comparison-guide)
+13. [Best Practices](#best-practices)
+14. [Failover & Reliability](#failover--reliability)
 
 ---
 
@@ -47,6 +54,16 @@ EODHD offers real-time finance data for US markets, 1100+ Forex pairs, and 1000+
 - Crypto: ETH-USD, BTC-USD
 
 **Global Markets**: Live (Delayed) data available with 15-minute delay for all exchanges worldwide
+
+---
+
+## Connection Flow
+
+1. Client connects to EODHD WebSocket endpoint with `api_token`
+2. EODHD validates the API token against the subscription
+3. Client sends JSON subscribe commands for desired symbols
+4. Server pushes price updates as they occur
+5. Client receives a continuous stream of market data
 
 ---
 
@@ -123,6 +140,14 @@ https://eodhd.com/api/exchange-symbol-list/CC?api_token=YOUR_API_KEY&fmt=json
 | **Transport Latency** | < 50 ms from gateway to client (excluding network distance) |
 | **Update Frequency** | As trades/quotes occur in the market |
 | **Connection Type** | Full-duplex, persistent |
+
+### Latency Breakdown
+
+| Segment | Typical Latency |
+|---------|-----------------|
+| Source → EODHD | ~1–5 ms |
+| EODHD → Client | Depends on network |
+| **Total end-to-end** | **< 50 ms from exchange** |
 
 ### Market Status
 
@@ -1206,6 +1231,120 @@ async with ManagedWebSocketClient(url, symbols) as client:
         process_message(message)
 # Automatically cleaned up
 ```
+
+---
+
+## Failover & Reliability
+
+- **Source disconnection**: Automatic reconnection with exponential backoff
+- **Service crash**: Automatic restart and recovery
+- **Client disconnection**: Server-side cleanup of subscriptions
+
+---
+
+## FAQ
+
+### API Call Consumption
+
+Due to the nature of this API, WebSockets do **not** consume API calls. The only limit is the 50-symbol subscription limit per connection, which can be increased at an additional cost via the user dashboard.
+
+### Connection Limits
+
+You can use **one connection per WebSocket endpoint**. The endpoints are:
+- `wss://ws.eodhistoricaldata.com/ws/us` (US trades)
+- `wss://ws.eodhistoricaldata.com/ws/us-quote` (US quotes)
+- `wss://ws.eodhistoricaldata.com/ws/forex` (Forex)
+- `wss://ws.eodhistoricaldata.com/ws/crypto` (Crypto)
+
+Each connection can have multiple tickers subscribed, with a total of **50 symbols** per connection.
+
+### Test Ticker
+
+There is no test ticker for US that works 24/7. You should test WebSockets during working hours, including pre-market and post-market hours (4 AM - 8 PM EST).
+
+### Crypto Data Source
+
+Data for cryptocurrencies is aggregated from **100+ exchanges**. For a ticker like BTC-USD, EODHD aggregates data using a **volume-weighted average price (VWAP)** approach: real-time price and volume data is collected from exchanges, then each exchange's price is weighted by its trading volume to calculate a single, coherent feed. This method smooths out anomalies from low-liquidity exchanges, ensuring the price reflects market activity accurately without random jumps.
+
+### Volume Discrepancy (EOD vs WebSocket)
+
+The total volume seen in the EOD API is aggregated data from **all exchanges**, whereas the WebSocket API provides only the **IEX exchange** data. This results in partial volume compared to EOD figures.
+
+### Index Price Feed Fields
+
+Index data uses the following format:
+
+```json
+{"s":"IXIC","p":14106.083,"dc":"1.8972","dd":"267.6230","ppms":true,"t":1647973245}
+```
+
+| Field | Description |
+|-------|-------------|
+| `s` | Symbol |
+| `p` | Price |
+| `dc` | Daily change (percentage) |
+| `dd` | Day difference (from previous day's close) |
+| `ppms` | Pre-/post-market data (true/false) |
+| `t` | Timestamp |
+
+### Update Frequency
+
+The data is **tick-based**, not frequency-based. Updates do not happen at fixed intervals — they arrive as trades/quotes occur in the market. This can be observed by the varying timestamps between messages.
+
+### Response Codes
+
+| Response | Meaning |
+|----------|---------|
+| `{"status_code":200,"message":"Authorized"}` | Successful authentication |
+| `{"status_code":422,"message":"Symbols limit reached"}` | Exceeded the 50-symbol subscription limit |
+| HTTP 401 | Unauthorized (invalid API token) |
+| HTTP 403 | Exceeded the number of concurrent connections |
+
+### Trade Conditions Guidelines
+
+When creating aggregates from WebSocket trade data, the following rules apply for which trade conditions should update which fields. The `c` field in trade messages contains condition codes.
+
+**Early Trading Hours / After Hours (Minute Aggregates):**
+
+| Action | Eligible Condition Codes |
+|--------|--------------------------|
+| Update High/Low | 0, 1, 3, 4, 5, 8, 9, 10, 12, 13, 14, 22, 23, 25, 27, 28, 29, 30, 33, 34, 36, 38 |
+| Do NOT Update High/Low | 2, 7, 15, 16, 20, 21, 37, 52, 53 |
+| Update Last | 0, 1, 3, 4, 8, 9, 12, 13, 14, 23, 25, 27, 28, 30, 34, 36, 38 |
+| Do NOT Update Last | 2, 5, 7, 10, 15, 16, 20, 21, 22, 29, 33, 37, 52, 53 |
+| Update Volume | 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 20, 21, 22, 23, 25, 27, 28, 29, 30, 33, 34, 36, 37, 52, 53 |
+| Do NOT Update Volume | 15, 16, 38 |
+
+**Normal Trading Hours (Minute & Daily Aggregates):**
+
+| Action | Eligible Condition Codes |
+|--------|--------------------------|
+| Update High/Low | 0, 1, 3, 4, 5, 8, 9, 10, 14, 22, 23, 25, 27, 28, 29, 30, 33, 34, 36, 38 |
+| Do NOT Update High/Low | 2, 7, 12, 13, 15, 16, 20, 21, 37, 52, 53 |
+| Update Last | 0, 1, 3, 4, 8, 9, 14, 23, 25, 27, 28, 30, 34, 36, 38 |
+| Do NOT Update Last | 2, 5, 7, 10, 12, 13, 15, 16, 20, 21, 22, 29, 33, 37, 52, 53 |
+| Update Volume | 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 20, 21, 22, 23, 25, 27, 28, 29, 30, 33, 34, 36, 37, 52, 53 |
+| Do NOT Update Volume | 15, 16, 38 |
+
+### Forex Non-Trading Periods
+
+EODHD aggregates Forex pairs from various sources and countries through trading companies, over-the-counter markets, market makers, banks, central banks, and third-party providers. Some specific pairs may have less volume or be affected by national holidays in specific countries, resulting in periods of non-trading.
+
+### Low-Trading Tickers
+
+Due to low trading volume, some tickers may produce data rarely. Updates will come eventually as trades occur.
+
+### Past Issue: Subscribing to Multiple Tickers
+
+There was a known issue where some tickers could be lost from the subscribe command when multiple tickers were used in a single command. **Workaround**: use multiple subscribe commands — one per ticker — to ensure all tickers stream data. Note: this issue may have been resolved; test with batch subscriptions first.
+
+### Volume as a Decimal
+
+The `v` (volume) field may contain decimal values. This occurs due to **fractional share trading**: some brokerages allow buying and selling fractional shares (portions of a share rather than whole shares), particularly for high-priced stocks. This results in non-integer trade sizes.
+
+### Daily Change for Forex
+
+For Forex pairs (e.g., EURUSD), the `dd` (day difference) and `dc` (daily change percentage) fields are calculated from **exactly 24 hours ago**, not from a fixed daily reset time.
 
 ---
 

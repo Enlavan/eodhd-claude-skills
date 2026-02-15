@@ -135,6 +135,9 @@ For testing with the "demo" API key, these tickers are available:
 - Content may be truncated for some sources
 - Use pagination (`offset`, `limit`) for large result sets
 - Available in: Standalone package, All-In-One, EOD Historical Data, Fundamentals Data Feed, Free plan
+- **One topic per request**: You can request only one tag/topic per API request.
+- **Timezone**: All news timestamps are in **UTC**.
+- **Sentiment thresholds**: In general, if the polarity is positive it is "good" news, and if negative it is "bad" news. There is no fixed threshold — polarity sign indicates direction.
 
 ## HTTP Status Codes
 

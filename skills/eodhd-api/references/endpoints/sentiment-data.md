@@ -143,6 +143,10 @@ For testing with the "demo" API key:
 - Works for stocks, ETFs, cryptocurrencies, and forex pairs
 - Results are sorted by date (most recent first)
 - Available in: Standalone package, All-In-One, EOD Historical Data, Fundamentals Data Feed, Free plan
+- **Symbols limit**: Maximum **100 symbols** per request.
+- **News sources**: Built upon news collected by EODHD. The news is English-language based but not limited to US-only sources.
+- **Data depth**: Sentiment data is available from **2018** onwards.
+- **Analysis technique**: Sentiment analysis uses NLP-based techniques similar to NLTK sentiment analysis (see: https://www.digitalocean.com/community/tutorials/how-to-perform-sentiment-analysis-in-python-3-using-the-natural-language-toolkit-nltk).
 
 ## HTTP Status Codes
 

@@ -121,6 +121,7 @@ python eodhd_client.py --endpoint screener --limit 20
 - Null values may exist for stocks missing certain metrics
 - Screener data is updated daily
 - API call consumption: 1 call per request
+- **Latest day only**: The screener works only for the **latest trading day**. It is not possible to screen based on a specific past date. Historical screening is not supported.
 
 ## HTTP Status Codes
 

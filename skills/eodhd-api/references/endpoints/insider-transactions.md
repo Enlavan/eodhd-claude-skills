@@ -121,6 +121,7 @@ python eodhd_client.py --endpoint insider-transactions --symbol AAPL.US --from-d
 - Use `postTransactionAmount` to see total insider holdings
 - Required fields: code, ownerName, transactionDate, transactionCode, transactionAmount
 - API call consumption: 1 call per request
+- **Coverage**: Data is available for the **past year** for **US companies only**, sourced from SEC Form 4 filings. Non-US markets are not covered.
 
 ## HTTP Status Codes
 

@@ -69,6 +69,10 @@ python eodhd_client.py --endpoint real-time --symbol AAPL.US
 - Batch requests support up to 15-20 symbols per call
 - Works for stocks, ETFs, indices, forex, and crypto (exchange-dependent)
 - API call consumption: 1 call per request (batch or single)
+- **Premarket data**: This API only works during trading hours. For pre-market and after-hours data, use the WebSockets API.
+- **"Close" is the live price**: In this API, the `close` field represents the current live price during market hours.
+- **Bulk live (real-time) API**: Add `&ex=US` to the URL to obtain live data for the entire US exchange. This feature is currently in **beta**, not officially documented, and only available for US. It consumes **100 API calls** per request (same as any bulk request).
+- **Mutual funds live data**: Live data is not available for mutual funds. Mutual fund prices do not change during the day (see OHLC data for mutual funds). The live API's "current" price for mutual funds is updated at end of day — same as EOD data.
 
 ## HTTP Status Codes
 

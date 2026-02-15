@@ -104,6 +104,8 @@ python eodhd_client.py --endpoint eod --symbol AAPL.US --from-date 2025-01-01 --
 - Free plan: Limited to 1 year of historical data
 - Data typically available 1-2 hours after market close
 - Weekends and holidays have no data (trading days only)
+- **Trading days with zero volume**: Some trading days may appear with 0 volume ("flat candles" with repeated prices). This varies by ticker because different data sources handle zero-volume days differently — some include them, some omit them. EODHD's goal is to clean up and omit zero-volume days over time, but this is not yet complete for all tickers. **Recommended workaround**: Simply filter out any days with `volume == 0` in your data processing. This does not affect data accuracy.
+- **US volumes at 4:30 PM EST**: Volume figures for US stocks may initially appear incorrect shortly after market close. EODHD first receives data from the Nasdaq Basic Feed (with Nasdaq-only volumes), then later re-updates from the CTA/UTP aggregated data feed (which must wait for post-market data). The final, accurate volume figures are available after this second update.
 - For intraday data, use the `/intraday/{SYMBOL}` endpoint
 - For real-time quotes, use the `/real-time/{SYMBOL}` endpoint
 

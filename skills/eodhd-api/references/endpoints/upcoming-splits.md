@@ -110,6 +110,8 @@ python eodhd_client.py --endpoint calendar/splits --symbols TSLA.US --from-date 
 - For full historical data, use the Splits and Dividends API
 - When using `symbols` parameter, you can also specify `from` and `to` dates for filtering
 - API call consumption: 1 call per request
+- **Historical splits before 2015**: The Calendar Splits API was designed primarily for **upcoming** splits. It does not support splits before 2015. For historical split data, use the **Splits and Dividends API** (`/div/{TICKER}` or `/splits/{TICKER}`) or the **EOD Bulk API** with `type=splits`. The Calendar API is recommended for upcoming splits; the other APIs for historical data.
+- **Historical splits by exchange**: To download historical splits for an entire exchange, use the Bulk API: https://eodhd.com/knowledgebase/bulk-api-eod-splits-dividends/
 
 ## HTTP Status Codes
 
