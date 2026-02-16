@@ -111,7 +111,7 @@ python eodhd_client.py --endpoint fundamentals --symbol AAPL.US
 - Some fields may be null for companies that don't report certain metrics
 - ETFs have different structure focusing on holdings and asset allocation
 - Mutual funds have NAV history and expense ratio information
-- API call consumption: 1 call per request regardless of sections filtered
+- API call consumption: 10 calls per request regardless of sections filtered
 
 ## HTTP Status Codes
 

@@ -20,6 +20,7 @@ for a symbol including last price, change, volume, and trading range.
 - Optional:
   - fmt: csv or json (default csv)
   - s: Additional symbols for batch request (comma-separated)
+  - ex: Set to `US` to fetch aggregated live data for all U.S. exchanges in a single request (consumes 100 API calls)
 
 ## Response (shape)
 Single quote object or array for batch requests:
@@ -56,6 +57,9 @@ curl "https://eodhd.com/api/real-time/AAPL.US?api_token=demo&fmt=json"
 # Batch request for multiple symbols
 curl "https://eodhd.com/api/real-time/AAPL.US?s=MSFT.US,GOOGL.US&api_token=demo&fmt=json"
 
+# Bulk request for all US exchanges (consumes 100 API calls)
+curl "https://eodhd.com/api/real-time/AAPL.US?ex=US&api_token=demo&fmt=json"
+
 # Using the helper client
 python eodhd_client.py --endpoint real-time --symbol AAPL.US
 ```
@@ -68,10 +72,10 @@ python eodhd_client.py --endpoint real-time --symbol AAPL.US
 - During market hours, data updates frequently; after hours shows last traded
 - Batch requests support up to 15-20 symbols per call
 - Works for stocks, ETFs, indices, forex, and crypto (exchange-dependent)
-- API call consumption: 1 call per request (batch or single)
+- API call consumption: 1 call per ticker in the request (e.g., 10 symbols = 10 calls)
 - **Premarket data**: This API only works during trading hours. For pre-market and after-hours data, use the WebSockets API.
 - **"Close" is the live price**: In this API, the `close` field represents the current live price during market hours.
-- **Bulk live (real-time) API**: Add `&ex=US` to the URL to obtain live data for the entire US exchange. This feature is currently in **beta**, not officially documented, and only available for US. It consumes **100 API calls** per request (same as any bulk request).
+- **Bulk live (real-time) API**: Add `ex=US` to the URL to fetch aggregated live data for all U.S. exchanges in a single request. Only available for US exchanges. Consumes **100 API calls** per request. Available in: All-In-One, EOD Historical Data: All World, EOD+Intraday: All World Extended, and Free plans.
 - **Mutual funds live data**: Live data is not available for mutual funds. Mutual fund prices do not change during the day (see OHLC data for mutual funds). The live API's "current" price for mutual funds is updated at end of day — same as EOD data.
 
 ## HTTP Status Codes

@@ -10,6 +10,7 @@ Use EODHD market data APIs to fetch, normalize, and summarize financial data inc
 - News and sentiment
 - Macro-economic indicators
 - Corporate events (dividends, splits, earnings, IPOs)
+- US Treasury interest rates (bill rates, long-term rates, yield curves, real yield curves)
 
 Supports equities, ETFs, indices, forex, crypto, and bonds across 70+ exchanges worldwide.
 
@@ -18,7 +19,7 @@ Supports equities, ETFs, indices, forex, crypto, and bonds across 70+ exchanges 
 Use this skill when the user asks for any of the following:
 - End-of-day or historical stock/ETF/index prices
 - Intraday price bars (1m, 5m, 1h intervals)
-- Real-time quotes (delayed 15-20 minutes)
+- Real-time quotes (delayed 15-20 minutes) or extended US stock quotes with bid/ask
 - Company fundamentals, financials, or valuation metrics
 - Options chains, Greeks, or options analytics
 - Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, etc.)
@@ -29,6 +30,7 @@ Use this skill when the user asks for any of the following:
 - Corporate calendar events (earnings, dividends, splits, IPOs)
 - Insider trading activity (executive purchases, sales)
 - Bulk data exports for an exchange
+- US Treasury interest rates, bill rates, yield curves, or real yield curves
 
 ## Required inputs
 
@@ -96,8 +98,15 @@ Use this skill when the user asks for any of the following:
 | `exchange-symbol-list` | Exchange tickers | `--symbol` (exchange code) |
 | `exchanges-list` | All exchanges | (no symbol needed) |
 | `eod-bulk-last-day` | Bulk EOD data | `--symbol` (exchange code) |
+| `bulk-fundamentals` | Bulk fundamentals for exchange | `--symbol` (exchange code), `--symbols`, `--limit`, `--offset`, `--version` |
+| `user` | Account details and API usage | (no parameters needed) |
+| `us-quote-delayed` | US extended quotes (Live v2) | `--symbol` (comma-separated for batch) |
+| `ust/bill-rates` | US Treasury Bill Rates | `--filter-year` |
+| `ust/long-term-rates` | US Treasury Long-Term Rates | `--filter-year` |
+| `ust/yield-rates` | US Treasury Par Yield Curve Rates | `--filter-year` |
+| `ust/real-yield-rates` | US Treasury Par Real Yield Curve Rates | `--filter-year` |
 
-**Note**: News-related endpoints (`news`, `sentiment`, `news-word-weights`) consume 5 API calls + 5 per ticker.
+**API call costs**: Most endpoints cost 1 call. `technical` and `intraday` cost 5 calls. `fundamentals` and `options` cost 10 calls. News-related endpoints (`news`, `sentiment`, `news-word-weights`) cost 5 calls + 5 per ticker. Bulk endpoints cost 100 calls (+ N symbols if `--symbols` used). See `references/general/rate-limits.md` for full details.
 
 ## Output requirements
 
@@ -164,6 +173,30 @@ python eodhd_client.py --endpoint calendar/ipos --from-date 2025-01-01 --to-date
 
 # Stock splits calendar
 python eodhd_client.py --endpoint calendar/splits --from-date 2025-01-01 --to-date 2025-01-31
+
+# Bulk fundamentals for an exchange (first 100)
+python eodhd_client.py --endpoint bulk-fundamentals --symbol NASDAQ --limit 100
+
+# Bulk fundamentals for specific symbols
+python eodhd_client.py --endpoint bulk-fundamentals --symbol NASDAQ --symbols AAPL.US,MSFT.US
+
+# User account details and API usage
+python eodhd_client.py --endpoint user
+
+# US extended quote (Live v2)
+python eodhd_client.py --endpoint us-quote-delayed --symbol AAPL.US,TSLA.US
+
+# US Treasury Bill Rates for 2012
+python eodhd_client.py --endpoint ust/bill-rates --filter-year 2012 --limit 100
+
+# US Treasury Long-Term Rates for 2020
+python eodhd_client.py --endpoint ust/long-term-rates --filter-year 2020
+
+# US Treasury Yield Curve for 2023
+python eodhd_client.py --endpoint ust/yield-rates --filter-year 2023
+
+# US Treasury Real Yield Curve for 2024
+python eodhd_client.py --endpoint ust/real-yield-rates --filter-year 2024
 ```
 
 ## References

@@ -1,41 +1,114 @@
 # Investverte ESG List Sectors API
 
-Status: stub
-Source: TBD (financial-apis or marketplace)
-Provider: TBD
-Base URL: TBD
-Path: TBD
-Method: TBD
-Auth: TBD
+Status: complete
+Source: marketplace (Investverte API)
+Docs: https://eodhd.com/financial-apis/esg-data-api
+Provider: Investverte via EODHD Marketplace
+Base URL: `https://eodhd.com/api/mp/investverte`
+Path: `/sectors`
+Method: GET
+Auth: `api_token` query parameter
 
 ## Purpose
-TBD.
+
+Returns the full list of sectors available in the Investverte ESG dataset.
+Each entry contains a sector name, allowing users to discover which sectors
+have ESG data and obtain the sector identifier needed to query sector-level
+ESG details via the View Sector endpoint.
+
+**Use cases**:
+- Discover which sectors have ESG data available
+- Obtain the correct sector name for use with the ESG View Sector endpoint
+- Filter or group ESG-rated companies by sector
+- Build sector-level ESG analysis for portfolio construction or research
+
+## Plans & API Calls
+
+This is a **Marketplace product** — its rate limits are counted separately from the main EODHD plans.
+
+| Limit | Value |
+|-------|-------|
+| API calls per 24 hours | 100,000 |
+| API requests per minute | 1,000 |
+| API calls per request | 10 (1 request = 10 API calls) |
+
+> The 24-hour period is counted differently for Marketplace products compared to the main EODHD plans.
 
 ## Parameters
-- Required: TBD
-- Optional: TBD
+
+### Query (required)
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `api_token` | string | Your API key |
 
 ## Response (shape)
-TBD.
 
-## Example request
+JSON array of sector objects. Each object contains:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sector` | string | Sector name (e.g. `"Technology"`, `"Banking"`, `"Healthcare"`) |
+
+## Example Request
+
 ```bash
-# TBD
+curl "https://eodhd.com/api/mp/investverte/sectors?api_token=YOUR_API_TOKEN"
+```
+
+## Example Response
+
+```json
+[
+  {
+    "sector": "Aerospace & Defense"
+  },
+  {
+    "sector": "Banking"
+  },
+  {
+    "sector": "Consumer Cyclical"
+  },
+  {
+    "sector": "Energy"
+  },
+  {
+    "sector": "Healthcare"
+  },
+  {
+    "sector": "Industrials"
+  },
+  {
+    "sector": "Real Estate"
+  },
+  {
+    "sector": "Technology"
+  },
+  {
+    "sector": "Unknown"
+  },
+  {
+    "sector": "Utilities"
+  }
+]
 ```
 
 ## Notes
-- TBD
+
+- **Marketplace product**: Requires a separate Investverte marketplace subscription, not included in main EODHD plans.
+- **53 sectors**: The dataset covers 53 sectors ranging from broad categories (e.g. `Technology`, `Energy`, `Healthcare`) to specific industries (e.g. `Semiconductors`, `Biotechnology`, `Marine`).
+- **"Unknown" sector**: Companies that cannot be classified into a specific sector are grouped under `"Unknown"`.
+- **No pagination parameters**: The endpoint returns the full list in a single response.
+- The `sector` value can be used with the Investverte ESG View Sector endpoint to retrieve sector-level ESG data.
 
 ## HTTP Status Codes
-
-The API returns standard HTTP status codes to indicate success or failure:
 
 | Status Code | Meaning | Description |
 |-------------|---------|-------------|
 | **200** | OK | Request succeeded. Data returned successfully. |
-| **402** | Payment Required | API limit used up. Upgrade plan or wait for limit reset. |
-| **403** | Unauthorized | Invalid API key. Check your `api_token` parameter. |
-| **429** | Too Many Requests | Exceeded rate limit (requests per minute). Slow down requests. |
+| **401** | Unauthorized | Invalid or missing API key. |
+| **403** | Forbidden | No access to this marketplace product. |
+| **429** | Too Many Requests | Rate limit exceeded (1,000 req/min or 100,000 calls/24h). |
 
 ### Error Response Format
 
@@ -60,10 +133,10 @@ def make_api_request(url, params):
         response.raise_for_status()  # Raises HTTPError for bad status codes
         return response.json()
     except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 402:
-            print("Error: API limit exceeded. Please upgrade your plan.")
-        elif e.response.status_code == 403:
+        if e.response.status_code == 401:
             print("Error: Invalid API key. Check your credentials.")
+        elif e.response.status_code == 403:
+            print("Error: No access to Investverte marketplace product.")
         elif e.response.status_code == 429:
             print("Error: Rate limit exceeded. Please slow down your requests.")
         else:
@@ -77,5 +150,5 @@ def make_api_request(url, params):
 **Best Practices**:
 - Always check status codes before processing response data
 - Implement exponential backoff for 429 errors
-- Cache responses to reduce API calls
+- Cache responses to reduce API calls — the sector list doesn't change frequently
 - Monitor your API usage in the user dashboard

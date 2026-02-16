@@ -4,6 +4,10 @@ This folder contains one stub file per endpoint.
 
 ## Endpoints
 
+- US Treasury Bill Rates API (ust-bill-rates.md)
+- US Treasury Long-Term Rates API (ust-long-term-rates.md)
+- US Treasury Yield Rates API (ust-yield-rates.md)
+- US Treasury Real Yield Rates API (ust-real-yield-rates.md)
 - WebSockets Real-Time Data API (websockets-realtime.md)
 - Cboe Index Data API (cboe-index-data.md)
 - Cboe Indices List API (cboe-indices-list.md)
@@ -13,6 +17,7 @@ This folder contains one stub file per endpoint.
 - Exchange Details API (exchange-details.md)
 - Exchanges List API (exchanges-list.md)
 - Exchange Tickers API (exchange-tickers.md)
+- Bulk Fundamentals API (bulk-fundamentals.md)
 - Fundamentals Data API (fundamentals-data.md)
 - Historical Market Cap API (historical-market-cap.md)
 - Historical Stock Prices API (historical-stock-prices.md)

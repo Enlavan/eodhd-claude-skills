@@ -1,39 +1,62 @@
-# EODHD API Rate Limits & Quotas
+# EODHD API Limits: Calls, Requests & Consumption
 
-This document explains the rate limits, API call quotas, and consumption rules for the EODHD API.
+This document explains the API call system, rate limits, and consumption rules for the EODHD API.
 
-## Overview
+## Key Concept: API Calls vs API Requests
 
-EODHD implements rate limits and API call quotas to ensure fair usage and system stability. Limits vary by subscription plan and endpoint type.
+An **API request** is not the same as an **API call**. API calls are a form of "currency" used to make requests. Different data requests consume different numbers of API calls. For example, a Fundamental data request costs 10 API calls, while a Live data request for 1 ticker costs 1 API call.
 
-## API Call Consumption
+## Daily API Limit (Calls)
 
-### How API Calls are Counted
+The daily limit is set by default to **100,000 API calls** per user for every paid plan or marketplace product.
 
-Each successful API request consumes a certain number of API calls from your quota:
+### Daily Limit Reset
 
-| Endpoint Type | Calls Consumed                     | Example |
-|---------------|------------------------------------|---------|
-| Most endpoints | 1 call                             | EOD prices, fundamentals, splits |
-| News endpoints | 5 + (5 × tickers)                  | News for 2 tickers = 5 + 10 = 15 calls |
-| Sentiment | 5 + (5 × tickers)                  | Sentiment for 1 ticker = 5 + 5 = 10 calls |
-| News word weights | 5 + (5 × tickers)                  | Word weights for 3 tickers = 5 + 15 = 20 calls |
-| Bulk downloads | 100 call (EOD)  | Entire exchange data in one call |
-| Failed requests (HTTP errors) | 0 calls                            | Server errors don't count against quota |
-| Invalid symbol requests | 1 call                             | Wrong symbols still return a response and count |
+- **Subscription plans**: The daily limit resets at **midnight GMT**. However, the counter itself is not reset automatically — it is refreshed on the **first API request made after midnight GMT**. Before that, the counter displays the number of API calls from the last active day.
+- **Marketplace products**: The daily limit resets **24 hours after the first request**. The first request creates a 24-hour window during which the daily call limit applies.
 
-### Standard Endpoints 
+### Daily Limit Increase
+
+To increase the API call daily limit (100,000 by default) for a subscription plan:
+
+1. Navigate to the **"Daily Usage"** section in the dashboard
+2. Select the **"Increase Daily Limit"** option
+3. View the price of the upgrade and submit a request to support
+
+Daily limit increases are **not currently available** for marketplace products. Contact support for specific cases.
+
+## API Call Consumption by Endpoint
+
+### Summary Table
+
+| Endpoint Type | Calls Consumed | Example |
+|---------------|----------------|---------|
+| Most endpoints (EOD, Splits, Dividends, Calendar, Exchange lists, etc.) | 1 call | EOD prices for 1 symbol = 1 call |
+| Multi-ticker endpoints (1 call per symbol) | 1 call per symbol | Live API with 10 symbols = 10 calls |
+| Technical API | 5 calls | SMA for 1 symbol = 5 calls |
+| Intraday API | 5 calls | 5-minute bars for 1 symbol = 5 calls |
+| News API | 5 calls | News for 1 symbol = 5 calls |
+| Sentiment API | 5 + (5 x tickers) | Sentiment for 2 tickers = 15 calls |
+| News Word Weights API | 5 + (5 x tickers) | Word weights for 3 tickers = 20 calls |
+| Fundamental API | 10 calls | Fundamentals for 1 symbol = 10 calls |
+| Options API | 10 calls | Options chain for 1 symbol = 10 calls |
+| Bond Fundamentals API | 10 calls | Bond data for 1 symbol = 10 calls |
+| Marketplace products | 10 calls (unless otherwise stated) | Per product documentation |
+| Bulk API (entire exchange) | 100 calls | Bulk EOD for entire exchange = 100 calls |
+| Bulk API (with `symbols` parameter) | 100 + N calls | Bulk with 3 symbols = 103 calls |
+| Failed requests (HTTP errors) | 0 calls | Server errors don't count against quota |
+| Invalid symbol requests | 1 call | Wrong symbols still return a response and count |
+
+### 1-Call Endpoints
 
 The following endpoints consume **1 API call** per request:
 
 **Market Data**:
 - End-of-day prices (`/eod/{TICKER}`)
-- Intraday data (`/intraday/{TICKER}`)
-- Live (delayed) quotes (`/real-time/{TICKER}`)
-- Technical indicators (`/technical/{TICKER}`)
+- Live (delayed) quotes (`/real-time/{TICKER}`) — 1 call per ticker
+- US extended quotes (`/us-quote-delayed`) — 1 call per ticker
 
-**Fundamentals**:
-- Company fundamentals (`/fundamentals/{TICKER}`)
+**Corporate Events**:
 - Dividends (`/div/{TICKER}`)
 - Splits (`/splits/{TICKER}`)
 - Insider transactions (`/insider-transactions`)
@@ -55,65 +78,150 @@ The following endpoints consume **1 API call** per request:
 **Screening**:
 - Stock screener (`/screener`)
 
-**Bulk Data**:
-- Bulk EOD (`/eod-bulk-last-day/{EXCHANGE}`)
+**Account**:
+- User details (`/user`)
 
-### News & Sentiment Endpoints (5 + 5×N Calls)
+**US Treasury**:
+- Bill rates (`/ust/bill-rates`)
+- Long-term rates (`/ust/long-term-rates`)
+- Yield rates (`/ust/yield-rates`)
+- Real yield rates (`/ust/real-yield-rates`)
 
-These endpoints have higher consumption due to AI processing:
+**Multi-ticker note**: For any multi-ticker API endpoint that costs 1 API call per request, each symbol costs 1 API call. For example, a Live API request with 10 symbols costs 10 API calls.
 
-**Formula**: `5 + (5 × number_of_tickers)`
+### 5-Call Endpoints
 
-**Examples**:
+The following endpoints consume **5 API calls** per request:
+
+- Technical indicators (`/technical/{TICKER}`)
+- Intraday data (`/intraday/{TICKER}`)
+- Company news (`/news`)
+- Sentiment data (`/sentiments`) — 5 + (5 x tickers)
+- News word weights (`/news-word-weights`) — 5 + (5 x tickers)
+
+**News/Sentiment formula**: `5 + (5 x number_of_tickers)`
 
 | Request | Tickers | Calculation | Total Calls |
 |---------|---------|-------------|-------------|
-| `/news?s=AAPL.US` | 1 | 5 + (5 × 1) | 10 calls |
-| `/news?s=AAPL.US,MSFT.US` | 2 | 5 + (5 × 2) | 15 calls |
-| `/sentiment?s=AAPL.US` | 1 | 5 + (5 × 1) | 10 calls |
-| `/news-word-weights?s=AAPL.US,MSFT.US,GOOGL.US` | 3 | 5 + (5 × 3) | 20 calls |
+| `/news?s=AAPL.US` | 1 | 5 + (5 x 1) | 10 calls |
+| `/news?s=AAPL.US,MSFT.US` | 2 | 5 + (5 x 2) | 15 calls |
+| `/sentiments?s=AAPL.US` | 1 | 5 + (5 x 1) | 10 calls |
+| `/news-word-weights?s=AAPL.US,MSFT.US,GOOGL.US` | 3 | 5 + (5 x 3) | 20 calls |
 
-**Affected Endpoints**:
-- Company news (`/news`)
-- Sentiment data (`/sentiments`)
-- News word weights (`/news-word-weights`)
+### 10-Call Endpoints
 
-## Plan-Based Quotas
+The following endpoints consume **10 API calls** per request:
 
+- Company fundamentals (`/fundamentals/{TICKER}`)
+- Options chains (`/options/{TICKER}`)
+- Bond fundamentals
+- Marketplace products (unless otherwise stated in product documentation)
 
-**Note**: Actual limits depend on your specific subscription. Check your account dashboard for exact quotas.
+### 100-Call Endpoints (Bulk)
 
-### Daily Rate Limits
+Bulk API endpoints consume **100 API calls** for the entire exchange:
 
-In addition to monthly quotas, there are daily rate limits:
+- Bulk EOD data (`/eod-bulk-last-day/{EXCHANGE}`) — 100 calls
+- Bulk fundamentals (`/bulk-fundamentals/{EXCHANGE}`) — 100 calls
 
-**Purpose**: Prevent burst usage that could exhaust monthly quota too quickly
+When the `symbols` parameter is used, the cost is **100 + N API calls**, where N is the number of symbols. For example, requesting bulk fundamentals for 3 symbols costs 103 API calls.
 
-**Typical Limits**:
-- Free: 20-50 requests/day
-- Paid plans: 1,000-10,000+ requests/day
+## Minute Limit (Requests)
 
-**Reset Time**: Daily limits reset at **midnight GMT (00:00 GMT)**
+The API is restricted to no more than **1,000 requests per minute**. This is a limit on HTTP requests, not API calls.
 
-**Important**: The counter is refreshed on **the first API request made after midnight GMT**. Until that first request is sent, the counter may still display the number of API calls from the last active day. There is no manual or on-demand reset option.
+You can check this limit via response headers included with every request:
 
-### Per-Second Rate Limits
-
-Rate limits are enforced at the API gateway level:
-
-| Limit Type | Rate | Burst | Description |
-|------------|------|-------|-------------|
-| REST API requests | ~17 requests/sec (~1,000/min) | 400 | General API endpoint rate limit |
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 998
+```
 
 Requests exceeding the rate limit receive an **HTTP 429 (Too Many Requests)** response. Excess requests are rejected immediately (not queued).
 
-**Note**: The per-minute rate limit does **not** increase when you purchase additional daily API calls. Doubling your daily call quota does not double the per-minute limit.
+**Best practice**: Spread requests evenly throughout the minute rather than sending them all at once, to avoid "Too Many Requests" errors.
+
+**Note**: The per-minute request limit does **not** increase when you purchase additional daily API calls or increase your daily call limit.
+
+## Extra API Calls
+
+You can purchase additional API calls that function as a **buffer** — they are only consumed once your daily API limit is exhausted.
+
+Key details:
+- Extra API calls **do not expire** and can be accumulated by purchasing more as needed
+- They **do not increase your daily limit** — they provide overflow capacity
+- Purchase via the **"Buy Extra API Calls"** form on your dashboard page
+- If you want to increase your daily limit instead, contact support: support@eodhistoricaldata.com
+
+**PayPal subscribers**: You can purchase an additional subscription of the same type and contact support to increase your limit.
+
+## API Usage Statistics
+
+### User Details Endpoint
+
+Check your current usage via the API:
+
+```bash
+curl "https://eodhd.com/api/user?api_token=YOUR_TOKEN"
+```
+
+**Response**:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "subscriptionType": "commercial",
+  "paymentMethod": "Stripe",
+  "apiRequests": 5432,
+  "apiRequestsDate": "2026-02-15",
+  "dailyRateLimit": 100000,
+  "extraLimit": 50000,
+  "subscriptionMode": "paid"
+}
+```
+
+Key fields:
+- `apiRequests` — Number of API calls on the latest day of API usage (resets at midnight GMT, but shows the previous day's count until a new request is made after reset)
+- `apiRequestsDate` — Date of the latest API request
+- `dailyRateLimit` — Maximum number of API calls allowed per day
+- `extraLimit` — Remaining amount of additionally purchased API calls
+
+### Dashboard
+
+Monitor usage through your account dashboard at https://eodhd.com/cp/api:
+
+- Select the period and type of API requests to adjust the chart view
+- The chart shows how many times you called the API
+- To calculate impact on your API limit, multiply the call count by the cost per API request (e.g., each intraday API call consumes 5 limit units)
+
+## Rate Limit Errors
+
+### Exceeded Daily Limit
+
+**HTTP Status**: 402 Payment Required
+
+**Solutions**:
+1. Wait until midnight GMT (daily reset)
+2. Increase your daily limit via the dashboard
+3. Purchase Extra API Calls as a buffer
+4. Optimize requests to use fewer calls
+
+### Exceeded Minute Limit
+
+**HTTP Status**: 429 Too Many Requests
+
+**Solutions**:
+1. Spread requests evenly throughout the minute
+2. Implement rate limiting in your code
+3. Add delays between requests
+4. Use exponential backoff for retries
+5. Consider batch/bulk endpoints
 
 ### Symbols Per Request
 
 | Request Type | Recommended | Maximum | Notes |
 |-------------|-------------|---------|-------|
-| **Bulk download** | Entire exchange | Entire exchange | 1 call (EOD) or 100 calls (live). US = 45,000+ tickers |
+| **Bulk download** | Entire exchange | Entire exchange | 100 calls. US = 45,000+ tickers |
 | **Standard request with `s` parameter** | 15-20 symbols | ~100 symbols | URL becomes extremely long at high counts |
 | **Batch real-time** | 15-20 symbols | ~100 symbols | Same URL length constraint |
 
@@ -129,9 +237,9 @@ EODHD does **not** keep user request history data — only the latest usage coun
 
 EODHD performs technical maintenance between **5:30 and 6:00 GMT** daily. Requests during this window have an increased risk of encountering **502 errors**. Avoid scheduling automated data fetches during this period.
 
-### X-RateLimit Headers
+### EODHD Service Status
 
-The `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` fields are **HTTP response headers** — they are included in the HTTP response, not in the WebSocket data stream or response body. Access them through your HTTP client's header-reading mechanism.
+Check the current status of the EODHD service at the EODHD status page.
 
 ### WebSocket Limits
 
@@ -142,127 +250,20 @@ WebSocket streaming does **not** have per-request rate limits. Instead, limits a
 
 See `pricing-and-plans.md` for WebSocket tier details.
 
-## Rate Limit Headers
-
-EODHD may include rate limit information in response headers:
-
-```
-X-RateLimit-Limit: 100000
-X-RateLimit-Remaining: 95432
-X-RateLimit-Reset: 1640995200
-```
-
-**Headers**:
-- `X-RateLimit-Limit`: Total monthly quota
-- `X-RateLimit-Remaining`: Remaining calls this month
-- `X-RateLimit-Reset`: Unix timestamp when quota resets
-
-**Note**: Header availability depends on endpoint and plan.
-
-## Checking Your Usage
-
-### User Details Endpoint
-
-Check remaining quota:
-
-```bash
-curl "https://eodhd.com/api/user?api_token=YOUR_TOKEN"
-```
-
-**Response**:
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "plan": "All-In-One",
-  "apiRequests": 100000,
-  "apiRequestsUsed": 5432,
-  "apiRequestsRemaining": 94568,
-  "dailyRateLimit": 5000,
-  "dailyRateLimitUsed": 123,
-  "monthlyResetDate": "2024-01-01T00:00:00Z"
-}
-```
-
-### Dashboard
-
-Monitor usage through your account dashboard:
-- Real-time usage statistics
-- Historical usage graphs
-- Usage alerts and notifications
-- Breakdown by endpoint type
-
-## Rate Limit Errors
-
-### Exceeded Monthly Quota
-
-**Error Response**:
-```json
-{
-  "error": "API rate limit exceeded. Your monthly quota is exhausted."
-}
-```
-
-**HTTP Status**: 429 Too Many Requests
-
-**Solutions**:
-1. Wait until quota resets (1st of next month)
-2. Upgrade to higher plan
-3. Purchase additional API calls (if available)
-4. Optimize requests to use fewer calls
-
-### Exceeded Daily Limit
-
-**Error Response**:
-```json
-{
-  "error": "Daily rate limit exceeded. Please try again tomorrow."
-}
-```
-
-**HTTP Status**: 429 Too Many Requests
-
-**Solutions**:
-1. Wait until 00:00 UTC (daily reset)
-2. Upgrade to plan with higher daily limit
-3. Spread requests throughout the day
-
-### Exceeded Per-Second Limit
-
-**Error Response**:
-```json
-{
-  "error": "Too many requests. Please slow down."
-}
-```
-
-**HTTP Status**: 429 Too Many Requests
-
-**Retry-After Header**: May include suggested wait time
-```
-Retry-After: 5
-```
-
-**Solutions**:
-1. Implement rate limiting in your code
-2. Add delays between requests
-3. Use exponential backoff for retries
-4. Consider batch/bulk endpoints
-
 ## Optimization Strategies
 
 ### 1. Use Bulk Endpoints
 
 Instead of fetching EOD data for 100 symbols individually:
 
-❌ **Inefficient** (100 calls):
+**Inefficient** (100 calls):
 ```bash
 for symbol in AAPL.US MSFT.US GOOGL.US ...; do
   curl "https://eodhd.com/api/eod/${symbol}?api_token=TOKEN"
 done
 ```
 
-✅ **Efficient** (1 call):
+**Efficient** (100 calls for entire exchange):
 ```bash
 curl "https://eodhd.com/api/eod-bulk-last-day/US?api_token=TOKEN"
 ```
@@ -305,20 +306,20 @@ class FundamentalsCache:
 
 For calendar endpoints, request ranges instead of individual dates:
 
-❌ **Inefficient** (7 calls):
+**Inefficient** (7 calls):
 ```python
 for date in date_range:
     get_earnings(date)
 ```
 
-✅ **Efficient** (1 call):
+**Efficient** (1 call):
 ```python
 get_earnings(from_date, to_date)
 ```
 
 ### 4. Use Appropriate Intervals
 
-For intraday data, choose the interval that matches your needs:
+For intraday data (5 calls each), choose the interval that matches your needs:
 
 - **1-minute**: Most granular, largest response
 - **5-minute**: Good balance for intraday analysis
@@ -328,27 +329,25 @@ For intraday data, choose the interval that matches your needs:
 
 Only request the date range you actually need:
 
-❌ **Excessive**:
+**Excessive**:
 ```python
 # Getting 20 years when you only need 1 year
 get_eod("AAPL.US", from_date="2004-01-01", to_date="2024-01-01")
 ```
 
-✅ **Appropriate**:
+**Appropriate**:
 ```python
 # Only request what you need
 get_eod("AAPL.US", from_date="2023-01-01", to_date="2024-01-01")
 ```
 
-### 6. Minimize News API Usage
+### 6. Minimize Expensive Endpoint Usage
 
-News endpoints are expensive (5 + 5×N calls):
+**10-call endpoints** (Fundamentals, Options): Cache aggressively, request only when needed.
 
-**Strategies**:
-- Request news for multiple symbols in one call
-- Use longer date ranges to get more articles per request
-- Cache news results for several hours
-- Consider if you really need sentiment analysis
+**5-call endpoints** (News, Intraday, Technical): Batch tickers in one call where possible.
+
+**News/Sentiment formula** (5 + 5*N): Request multiple symbols in one call rather than individually.
 
 ## Implementing Rate Limiting
 
@@ -476,26 +475,19 @@ Implement usage tracking:
 class UsageTracker:
     def __init__(self):
         self.daily_count = 0
-        self.monthly_count = 0
-        self.last_reset = time.time()
 
     def increment(self, calls=1):
-        """Increment usage counters."""
+        """Increment usage counter."""
         self.daily_count += calls
-        self.monthly_count += calls
 
-    def check_limits(self, daily_limit, monthly_limit):
-        """Check if approaching limits."""
+    def check_limits(self, daily_limit=100000):
+        """Check if approaching daily limit."""
         daily_pct = (self.daily_count / daily_limit) * 100
-        monthly_pct = (self.monthly_count / monthly_limit) * 100
 
         if daily_pct > 90:
             print(f"Warning: {daily_pct:.1f}% of daily limit used")
 
-        if monthly_pct > 90:
-            print(f"Warning: {monthly_pct:.1f}% of monthly limit used")
-
-        return daily_pct, monthly_pct
+        return daily_pct
 ```
 
 ### Set Up Alerts
@@ -508,68 +500,62 @@ def send_alert(message):
     # Implement your alert mechanism
     print(f"ALERT: {message}")
 
-def check_quota():
+def check_quota(token):
     """Check quota and alert if necessary."""
     response = requests.get(f"https://eodhd.com/api/user?api_token={token}")
     data = response.json()
 
-    remaining = data.get('apiRequestsRemaining', 0)
-    limit = data.get('apiRequests', 0)
-    pct_remaining = (remaining / limit) * 100
+    used = data.get('apiRequests', 0)
+    limit = data.get('dailyRateLimit', 100000)
+    extra = data.get('extraLimit', 0)
+    pct_used = (used / limit) * 100
 
-    if pct_remaining < 10:
-        send_alert(f"Only {pct_remaining:.1f}% of API quota remaining!")
+    if pct_used > 90:
+        send_alert(f"{pct_used:.1f}% of daily API limit used ({used}/{limit})!")
+        if extra > 0:
+            print(f"Extra API calls available as buffer: {extra}")
 ```
 
 ## Best Practices
 
-1. **Monitor usage regularly**: Check dashboard or use `/user` endpoint
-2. **Implement caching**: Reduce redundant API calls
-3. **Use bulk endpoints**: When fetching data for multiple symbols
-4. **Rate limit your requests**: Don't exceed per-second limits
-5. **Handle 429 errors gracefully**: Implement retry logic with backoff
-6. **Request only what you need**: Avoid over-fetching data
-7. **Cache expensive endpoints**: Especially news/sentiment
-8. **Set up alerts**: Know when approaching limits
-9. **Plan for scale**: Choose appropriate subscription tier
-10. **Optimize queries**: Use date ranges efficiently
+1. **Understand the cost**: Know how many API calls each endpoint consumes before building workflows
+2. **Monitor usage regularly**: Check dashboard at https://eodhd.com/cp/api or use `/user` endpoint
+3. **Implement caching**: Reduce redundant API calls, especially for 10-call endpoints
+4. **Use bulk endpoints**: 100 calls for an entire exchange vs 1 call per symbol individually
+5. **Rate limit your requests**: Stay within 1,000 requests per minute
+6. **Handle 429 errors gracefully**: Implement retry logic with exponential backoff
+7. **Request only what you need**: Avoid over-fetching data ranges
+8. **Cache expensive endpoints**: Fundamentals (10 calls), Options (10 calls), News/Sentiment (5 + 5*N)
+9. **Spread requests evenly**: Don't burst all requests at once within a minute
+10. **Consider Extra API Calls**: Purchase as a buffer if you occasionally exceed daily limits
 
-## Upgrading Plans
+## Upgrading & Increasing Limits
 
-If you consistently hit rate limits:
+### Signs You Need More Capacity
 
-### Signs You Need to Upgrade
+- Regularly hitting the 100,000 daily call limit
+- Frequently receiving 402 or 429 errors
+- Need to process more symbols per day
 
-- Regularly hitting monthly quota
-- Frequently receiving 429 errors
-- Need faster request rates
-- Require real-time data
-- Need longer historical data
+### Options
 
-### What to Consider
+1. **Increase daily limit**: Via dashboard "Increase Daily Limit" option (subscription plans only)
+2. **Buy Extra API Calls**: Buffer for overflow, purchased via dashboard, never expire
+3. **Upgrade subscription plan**: Contact support for enterprise-level needs
 
-- **Monthly call volume**: Current usage + growth
-- **Daily patterns**: Peak usage times
-- **Feature requirements**: Real-time vs delayed
-- **Data retention**: Historical data needs
-- **Support level**: Priority support for higher tiers
+### Contact
 
-### How to Upgrade
-
-1. Visit EODHD pricing page
-2. Compare plan features
-3. Select appropriate plan
-4. Upgrade through dashboard
-5. New limits apply immediately
+- Support: support@eodhistoricaldata.com
+- Dashboard: https://eodhd.com/cp/api
 
 ## HTTP Error Codes
 
 | HTTP Code | Meaning |
 |-----------|---------|
 | 200 | Success |
-| 401 | Unauthorized — invalid or missing API key |
-| 403 | Forbidden — endpoint not available for your plan |
-| 429 | Too Many Requests — rate limit exceeded |
+| 402 | Payment Required — daily API call limit exhausted |
+| 403 | Unauthorized — invalid or missing API key |
+| 429 | Too Many Requests — minute request limit exceeded |
 | 500 | Server Error — retry after a short delay |
 
 ## SDK Quota Management
@@ -584,7 +570,7 @@ See `sdks-and-integrations.md` for full SDK details.
 ## Related Resources
 
 - **Authentication**: See `authentication.md`
-- **Pricing & Plans**: See `pricing-and-plans.md` for quota details per plan
-- **User endpoint**: `/api/user` for quota checking
-- **Account dashboard**: Monitor usage in real-time
-- **Support**: Contact for custom enterprise limits
+- **Pricing & Plans**: See `pricing-and-plans.md` for subscription tier details
+- **User endpoint**: `/api/user` for quota checking — see `../endpoints/user-details.md`
+- **Account dashboard**: https://eodhd.com/cp/api
+- **Support**: support@eodhistoricaldata.com

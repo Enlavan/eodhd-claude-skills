@@ -49,6 +49,31 @@ Examples:
 
   # News word weights (trending topics)
   python eodhd_client.py --endpoint news-word-weights --symbol AAPL.US --from-date 2025-01-01 --to-date 2025-01-15 --limit 20
+
+  # US extended quotes (Live v2) - single or multiple symbols
+  python eodhd_client.py --endpoint us-quote-delayed --symbol AAPL.US
+  python eodhd_client.py --endpoint us-quote-delayed --symbol AAPL.US,TSLA.US,MSFT.US
+
+  # Bulk fundamentals for an exchange
+  python eodhd_client.py --endpoint bulk-fundamentals --symbol NASDAQ --limit 100
+
+  # Bulk fundamentals for specific symbols
+  python eodhd_client.py --endpoint bulk-fundamentals --symbol NASDAQ --symbols AAPL.US,MSFT.US
+
+  # User details (account info, API usage)
+  python eodhd_client.py --endpoint user
+
+  # US Treasury Bill Rates
+  python eodhd_client.py --endpoint ust/bill-rates --filter-year 2012 --limit 100
+
+  # US Treasury Long-Term Rates
+  python eodhd_client.py --endpoint ust/long-term-rates --filter-year 2020
+
+  # US Treasury Yield Rates (Par Yield Curve)
+  python eodhd_client.py --endpoint ust/yield-rates --filter-year 2023
+
+  # US Treasury Real Yield Rates (Par Real Yield Curve)
+  python eodhd_client.py --endpoint ust/real-yield-rates --filter-year 2024
 """
 
 from __future__ import annotations
@@ -71,12 +96,19 @@ NO_SYMBOL_ENDPOINTS = {
     "calendar/splits",
     "calendar/dividends",
     "economic-events",
+    "ust/bill-rates",
+    "ust/long-term-rates",
+    "ust/yield-rates",
+    "ust/real-yield-rates",
+    "us-quote-delayed",
+    "user",
 }
 
 # Endpoints where --symbol means exchange code, not ticker
 EXCHANGE_CODE_ENDPOINTS = {
     "exchange-symbol-list",
     "eod-bulk-last-day",
+    "bulk-fundamentals",
 }
 
 
@@ -103,6 +135,18 @@ def build_path(endpoint: str, symbol: str | None, function: str | None = None) -
             return "/economic-events"
         if endpoint == "screener":
             return "/screener"
+        if endpoint == "ust/bill-rates":
+            return "/ust/bill-rates"
+        if endpoint == "ust/long-term-rates":
+            return "/ust/long-term-rates"
+        if endpoint == "ust/yield-rates":
+            return "/ust/yield-rates"
+        if endpoint == "ust/real-yield-rates":
+            return "/ust/real-yield-rates"
+        if endpoint == "us-quote-delayed":
+            return "/us-quote-delayed"
+        if endpoint == "user":
+            return "/user"
         return f"/{endpoint}"
 
     # Require symbol for all other endpoints
@@ -146,6 +190,8 @@ def build_path(endpoint: str, symbol: str | None, function: str | None = None) -
         return f"/exchange-symbol-list/{symbol}"
     if endpoint == "eod-bulk-last-day":
         return f"/eod-bulk-last-day/{symbol}"
+    if endpoint == "bulk-fundamentals":
+        return f"/bulk-fundamentals/{symbol}"
 
     # Index/exchange related
     if endpoint == "exchanges-details":
@@ -164,6 +210,7 @@ SUPPORTED_ENDPOINTS = [
     "eod-bulk-last-day",
     # Fundamentals & company data
     "fundamentals",
+    "bulk-fundamentals",
     "news",
     "sentiment",
     "news-word-weights",
@@ -190,6 +237,15 @@ SUPPORTED_ENDPOINTS = [
     "index-components",
     # Screening
     "screener",
+    # US extended quotes (Live v2)
+    "us-quote-delayed",
+    # Account
+    "user",
+    # US Treasury rates
+    "ust/bill-rates",
+    "ust/long-term-rates",
+    "ust/yield-rates",
+    "ust/real-yield-rates",
 ]
 
 
@@ -200,7 +256,7 @@ def parse_args() -> argparse.Namespace:
         epilog="""
 Supported endpoints:
   Market Data:    eod, intraday, real-time, eod-bulk-last-day
-  Fundamentals:   fundamentals, news, sentiment, news-word-weights, insider-transactions
+  Fundamentals:   fundamentals, bulk-fundamentals, news, sentiment, news-word-weights, insider-transactions
   Corporate:      dividends, splits
   Technical:      technical (requires --function)
   Options:        options
@@ -208,6 +264,9 @@ Supported endpoints:
   Calendar:       calendar/earnings, calendar/trends, calendar/ipos, calendar/splits, calendar/dividends
   Exchange:       exchange-symbol-list, exchanges-list, exchanges-details
   Screening:      screener
+  US Quotes:      us-quote-delayed (Live v2 extended quotes)
+  Account:        user
+  US Treasury:    ust/bill-rates, ust/long-term-rates, ust/yield-rates, ust/real-yield-rates
 
 Note: news-word-weights may have longer response times due to AI processing.
 
@@ -242,6 +301,19 @@ For exchange-symbol-list and eod-bulk-last-day, use exchange code (e.g., US, LSE
     parser.add_argument(
         "--filter",
         help="Filter for specific fields (e.g., last_close, extended for earnings)",
+    )
+    parser.add_argument(
+        "--symbols",
+        help="Comma-separated symbols for bulk-fundamentals (e.g., AAPL.US,MSFT.US)",
+    )
+    parser.add_argument(
+        "--version",
+        help="API version for bulk-fundamentals (e.g., 1.2)",
+    )
+    parser.add_argument(
+        "--filter-year",
+        type=int,
+        help="Filter by year for UST endpoints (e.g., 2023)",
     )
     parser.add_argument("--base-url", default=BASE_URL, help="Override base URL")
     parser.add_argument("--timeout", type=int, default=30, help="HTTP timeout seconds")
@@ -358,6 +430,33 @@ def main() -> int:
     # Special handling for calendar/splits endpoint (supports symbols parameter)
     if args.endpoint == "calendar/splits" and args.symbol:
         params["symbols"] = args.symbol
+
+    # Special handling for us-quote-delayed endpoint (uses 's' param, page[limit], page[offset])
+    if args.endpoint == "us-quote-delayed":
+        if not args.symbol:
+            print("Error: --symbol is required for us-quote-delayed (comma-separated for batch)", file=sys.stderr)
+            return 2
+        params["s"] = args.symbol
+        if args.limit is not None:
+            params["page[limit]"] = params.pop("limit", args.limit)
+        if args.offset is not None:
+            params["page[offset]"] = params.pop("offset", args.offset)
+
+    # Special handling for bulk-fundamentals endpoint (symbols, version params)
+    if args.endpoint == "bulk-fundamentals":
+        if args.symbols:
+            params["symbols"] = args.symbols
+        if args.version:
+            params["version"] = args.version
+
+    # Special handling for UST endpoints (filter[year], page[limit], page[offset])
+    if args.endpoint.startswith("ust/"):
+        if args.filter_year is not None:
+            params["filter[year]"] = args.filter_year
+        if args.limit is not None:
+            params["page[limit]"] = params.pop("limit", args.limit)
+        if args.offset is not None:
+            params["page[offset]"] = params.pop("offset", args.offset)
 
     query = urllib.parse.urlencode(params)
     url = args.base_url.rstrip("/") + path + "?" + query
