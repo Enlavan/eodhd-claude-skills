@@ -47,7 +47,7 @@ This directory contains general information about working with the EODHD API, in
 **What you'll learn**:
 - How to format symbols correctly for all asset types
 - Exchange-specific symbol conventions
-- Special formats for Forex, Crypto, Bonds, Commodities
+- Special formats for Forex, Crypto, Bonds, Indices
 - Common mistakes and how to avoid them
 - How to find the right symbol
 
@@ -55,8 +55,8 @@ This directory contains general information about working with the EODHD API, in
 - Standard format: `{TICKER}.{EXCHANGE}`
 - Forex: `{BASE}{QUOTE}.FOREX`
 - Crypto: `{CRYPTO}-{QUOTE}.CC`
-- Bonds: `{CODE}.MONEY`
-- Indices and commodities
+- Government Bonds: `{CODE}.GBOND`
+- Indices
 - URL encoding for special characters
 
 **Start here if**: You're getting "symbol not found" errors or unsure about ticker format
@@ -68,7 +68,7 @@ This directory contains general information about working with the EODHD API, in
 **What you'll learn**:
 - Complete list of 70+ supported exchanges
 - Exchange codes for all regions
-- Special exchange codes (FOREX, CC, MONEY, COMM, INDX)
+- Special exchange codes (FOREX, CC, MONEY, GBOND, EUFUND, INDX)
 - Trading hours by exchange
 - Data coverage and availability
 
@@ -76,7 +76,7 @@ This directory contains general information about working with the EODHD API, in
 - North American exchanges (US, TO, V, MX)
 - European exchanges (LSE, XETRA, PA, AS, MI, etc.)
 - Asian markets (T, HK, SHG, NSE, BSE, etc.)
-- Special markets (Forex, Crypto, Bonds, Commodities)
+- Special markets (Forex, Crypto, Bonds, Indices)
 - Finding correct exchange codes
 
 **Start here if**: You need to know which exchange code to use or want to see all supported markets
@@ -210,8 +210,8 @@ Endpoint: /api/eod/BTC-USD.CC?api_token=TOKEN&fmt=json
 
 **Government Bond**:
 ```
-Symbol: US10Y.MONEY
-Endpoint: /api/eod/US10Y.MONEY?api_token=TOKEN&fmt=json
+Symbol: US10Y.GBOND
+Endpoint: /api/eod/US10Y.GBOND?api_token=TOKEN&fmt=json
 ```
 
 ### Environment Setup
@@ -221,14 +221,17 @@ Endpoint: /api/eod/US10Y.MONEY?api_token=TOKEN&fmt=json
 export EODHD_API_TOKEN="your_token_here"
 
 # Test connection
-curl "https://eodhd.com/api/user?api_token=$EODHD_API_TOKEN"
+curl "https://eodhd.com/api/internal-user?api_token=$EODHD_API_TOKEN"
 ```
 
 ### Rate Limit Check
 
 ```bash
-# Check remaining quota
-curl "https://eodhd.com/api/user?api_token=$EODHD_API_TOKEN" | jq '.apiRequestsRemaining'
+# Check remaining quota (main subscription)
+curl "https://eodhd.com/api/internal-user?api_token=$EODHD_API_TOKEN" | jq '{apiRequests, dailyRateLimit, extraLimit}'
+
+# Check Marketplace quota
+curl "https://eodhd.com/api/internal-user?api_token=$EODHD_API_TOKEN" | jq '.availableMarketplaceDataFeeds'
 ```
 
 ### Symbol Search

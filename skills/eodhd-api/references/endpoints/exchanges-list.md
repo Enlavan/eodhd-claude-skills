@@ -27,31 +27,31 @@ exchange metadata before querying market data.
 ```json
 [
   {
-    "Name": "New York Stock Exchange",
-    "Code": "NYSE",
-    "OperatingMIC": "XNYS",
+    "Name": "USA Stocks",
+    "Code": "US",
+    "OperatingMIC": "XNAS, XNYS, OTCM",
     "Country": "USA",
     "Currency": "USD",
     "CountryISO2": "US",
     "CountryISO3": "USA"
   },
   {
-    "Name": "NASDAQ Stock Exchange",
-    "Code": "NASDAQ",
-    "OperatingMIC": "XNAS",
-    "Country": "USA",
-    "Currency": "USD",
-    "CountryISO2": "US",
-    "CountryISO3": "USA"
-  },
-  {
-    "Name": "London Stock Exchange",
+    "Name": "London Exchange",
     "Code": "LSE",
     "OperatingMIC": "XLON",
     "Country": "UK",
     "Currency": "GBP",
     "CountryISO2": "GB",
     "CountryISO3": "GBR"
+  },
+  {
+    "Name": "Government Bonds",
+    "Code": "GBOND",
+    "OperatingMIC": null,
+    "Country": "Unknown",
+    "Currency": "Unknown",
+    "CountryISO2": "",
+    "CountryISO3": ""
   }
 ]
 ```
@@ -62,32 +62,33 @@ exchange metadata before querying market data.
 |-------|------|-------------|
 | Name | string | Full name of the exchange |
 | Code | string | EODHD exchange code (used in symbol suffix) |
-| OperatingMIC | string | ISO 10383 Market Identifier Code |
-| Country | string | Country name |
-| Currency | string | Primary trading currency |
-| CountryISO2 | string | ISO 3166-1 alpha-2 country code |
-| CountryISO3 | string | ISO 3166-1 alpha-3 country code |
+| OperatingMIC | string or null | ISO 10383 Market Identifier Code(s). Can be comma-separated for combined exchanges (e.g., `"XNAS, XNYS, OTCM"`), or `null` for virtual exchanges (GBOND, MONEY, EUFUND) |
+| Country | string | Country name (or `"Unknown"` for virtual exchanges) |
+| Currency | string | Primary trading currency (or `"Unknown"` for virtual exchanges) |
+| CountryISO2 | string | ISO 3166-1 alpha-2 country code (empty string for virtual exchanges) |
+| CountryISO3 | string | ISO 3166-1 alpha-3 country code (empty string for virtual exchanges) |
 
 ### Common Exchange Codes
 
 | Code | Exchange |
 |------|----------|
-| US | United States (NYSE, NASDAQ, AMEX combined) |
-| LSE | London Stock Exchange |
-| XETRA | Frankfurt (Deutsche Börse) |
+| US | USA Stocks (NYSE, NASDAQ, OTC Markets combined) |
+| LSE | London Exchange |
+| XETRA | XETRA Stock Exchange (Germany) |
 | PA | Euronext Paris |
-| TO | Toronto Stock Exchange |
-| HK | Hong Kong Stock Exchange |
+| TO | Toronto Exchange |
 | TW | Taiwan Stock Exchange |
 | KO | Korea Stock Exchange |
 | SHG | Shanghai Stock Exchange |
 | SHE | Shenzhen Stock Exchange |
 | AU | Australian Securities Exchange |
-| TSE | Tokyo Stock Exchange |
-| NSE | National Stock Exchange of India |
-| SA | Sao Paulo Stock Exchange (B3) |
-| MC | Madrid Stock Exchange |
+| SA | Sao Paulo Exchange (B3) |
+| MC | Madrid Exchange |
 | AS | Euronext Amsterdam |
+| JSE | Johannesburg Exchange |
+| FOREX | Forex |
+| CC | Cryptocurrencies |
+| GBOND | Government Bonds |
 
 ## Example Requests
 
@@ -121,13 +122,10 @@ The API returns standard HTTP status codes to indicate success or failure:
 
 ### Error Response Format
 
-When an error occurs, the API returns a JSON response with error details:
+For authentication errors (invalid/expired token), the API returns plain text `Unauthenticated` (not JSON). For other errors, the API may return JSON:
 
-```json
-{
-  "error": "Error message description",
-  "code": 403
-}
+```
+Unauthenticated
 ```
 
 ### Handling Errors

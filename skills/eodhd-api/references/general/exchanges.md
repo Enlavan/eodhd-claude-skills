@@ -1,6 +1,6 @@
 # EODHD Supported Exchanges
 
-This document provides a comprehensive list of exchanges supported by EODHD, including those that may not appear in the `/exchanges-list` endpoint.
+This document provides a comprehensive list of exchanges supported by EODHD, based on the actual `/exchanges-list` API response.
 
 ## Overview
 
@@ -9,10 +9,9 @@ EODHD provides data for 70+ exchanges worldwide covering:
 - **Indices** - Major market indices
 - **Forex** - Currency pairs
 - **Cryptocurrencies** - Digital assets
-- **Bonds** - Government and corporate bonds
-- **Commodities** - Futures and spot prices
-
-**Note**: Not all exchanges appear in the `/exchanges-list` endpoint. Some specialized exchanges (e.g., MONEY, FOREX, CC, COMM) are accessed directly using their exchange codes.
+- **Bonds** - Government bonds
+- **Money Markets** - Interest rates and money market instruments
+- **European Funds** - Fund data via virtual exchange
 
 ## Exchange Code Format
 
@@ -23,92 +22,125 @@ Examples:
 - `BMW.XETRA` - BMW on XETRA (Germany)
 - `EURUSD.FOREX` - EUR/USD currency pair
 - `BTC-USD.CC` - Bitcoin/USD on cryptocurrency exchanges
-- `US10Y.MONEY` - US 10-year Treasury yield
+- `US10Y.GBOND` - US 10-year Treasury yield
 
-## Major Exchanges by Region
+## Exchanges by Region
+
+All exchanges below are confirmed present in the `/exchanges-list` API response.
 
 ### North America
 
-| Code | Exchange Name | Country | Asset Types | Trading Hours (Local) |
-|------|---------------|---------|-------------|---------------------|
-| US | NYSE/NASDAQ/AMEX | United States | Stocks, ETFs, Indices | 09:30-16:00 EST |
-| TO | Toronto Stock Exchange | Canada | Stocks, ETFs | 09:30-16:00 EST |
-| V | TSX Venture Exchange | Canada | Stocks | 09:30-16:00 EST |
-| CN | Canadian Securities Exchange | Canada | Stocks | 09:30-16:00 EST |
-| NE | NEO Exchange | Canada | Stocks, ETFs | 09:30-16:00 EST |
-| MX | Mexican Stock Exchange | Mexico | Stocks | 08:30-15:00 CST |
+| Code | Exchange Name | Country | Currency | OperatingMIC |
+|------|---------------|---------|----------|--------------|
+| US | USA Stocks | USA | USD | XNAS, XNYS, OTCM |
+| TO | Toronto Exchange | Canada | CAD | XTSE |
+| V | TSX Venture Exchange | Canada | CAD | XTSX |
+| NEO | NEO Exchange | Canada | CAD | NEOE |
+| MX | Mexican Exchange | Mexico | MXN | XMEX |
+
+**Note**: The `US` code combines NYSE, NASDAQ, and OTC Markets into a single virtual exchange.
 
 ### Europe
 
-| Code | Exchange Name | Country | Asset Types | Trading Hours (Local) |
-|------|---------------|---------|-------------|---------------------|
-| LSE | London Stock Exchange | United Kingdom | Stocks, ETFs, Bonds | 08:00-16:30 GMT |
-| XETRA | Deutsche Börse XETRA | Germany | Stocks, ETFs | 09:00-17:30 CET |
-| F | Frankfurt Stock Exchange | Germany | Stocks | 08:00-20:00 CET |
-| PA | Euronext Paris | France | Stocks, ETFs | 09:00-17:30 CET |
-| AS | Euronext Amsterdam | Netherlands | Stocks, ETFs | 09:00-17:30 CET |
-| BR | Euronext Brussels | Belgium | Stocks | 09:00-17:30 CET |
-| LS | Euronext Lisbon | Portugal | Stocks | 09:00-17:30 CET |
-| MC | Madrid Stock Exchange | Spain | Stocks | 09:00-17:30 CET |
-| MI | Borsa Italiana | Italy | Stocks, ETFs | 09:00-17:30 CET |
-| SW | SIX Swiss Exchange | Switzerland | Stocks | 09:00-17:30 CET |
-| VI | Vienna Stock Exchange | Austria | Stocks | 09:00-17:30 CET |
-| CO | Copenhagen Stock Exchange | Denmark | Stocks | 09:00-17:00 CET |
-| ST | Stockholm Stock Exchange | Sweden | Stocks | 09:00-17:30 CET |
-| HE | Helsinki Stock Exchange | Finland | Stocks | 10:00-18:30 EET |
-| OL | Oslo Stock Exchange | Norway | Stocks | 09:00-16:20 CET |
-| IC | Iceland Stock Exchange | Iceland | Stocks | 09:30-15:30 GMT |
-| IR | Irish Stock Exchange | Ireland | Stocks | 08:00-16:28 GMT |
-| WAR | Warsaw Stock Exchange | Poland | Stocks | 09:00-17:00 CET |
-| PR | Prague Stock Exchange | Czech Republic | Stocks | 09:00-16:25 CET |
-| BUD | Budapest Stock Exchange | Hungary | Stocks | 09:00-17:00 CET |
-| ATH | Athens Stock Exchange | Greece | Stocks | 10:00-17:20 EET |
-| IST | Borsa Istanbul | Turkey | Stocks | 09:40-18:10 TRT |
-| MCX | Moscow Exchange | Russia | Stocks | 10:00-18:50 MSK |
+| Code | Exchange Name | Country | Currency | OperatingMIC |
+|------|---------------|---------|----------|--------------|
+| LSE | London Exchange | UK | GBP | XLON |
+| XETRA | XETRA Stock Exchange | Germany | EUR | XETR |
+| F | Frankfurt Exchange | Germany | EUR | XFRA |
+| BE | Berlin Exchange | Germany | EUR | XBER |
+| HM | Hamburg Exchange | Germany | EUR | XHAM |
+| DU | Dusseldorf Exchange | Germany | EUR | XDUS |
+| MU | Munich Exchange | Germany | EUR | XMUN |
+| STU | Stuttgart Exchange | Germany | EUR | XSTU |
+| HA | Hanover Exchange | Germany | EUR | XHAN |
+| PA | Euronext Paris | France | EUR | XPAR |
+| AS | Euronext Amsterdam | Netherlands | EUR | XAMS |
+| BR | Euronext Brussels | Belgium | EUR | XBRU |
+| LS | Euronext Lisbon | Portugal | EUR | XLIS |
+| MC | Madrid Exchange | Spain | EUR | BMEX |
+| SW | SIX Swiss Exchange | Switzerland | CHF | XSWX |
+| VI | Vienna Exchange | Austria | EUR | XWBO |
+| LU | Luxembourg Stock Exchange | Luxembourg | EUR | XLUX |
+| ST | Stockholm Exchange | Sweden | SEK | XSTO |
+| OL | Oslo Stock Exchange | Norway | NOK | XOSL |
+| HE | Helsinki Exchange | Finland | EUR | XHEL |
+| CO | Copenhagen Exchange | Denmark | DKK | XCSE |
+| IC | Iceland Exchange | Iceland | ISK | XICE |
+| IR | Irish Exchange | Ireland | EUR | XDUB |
+| WAR | Warsaw Stock Exchange | Poland | PLN | XWAR |
+| PR | Prague Stock Exchange | Czech Republic | CZK | XPRA |
+| BUD | Budapest Stock Exchange | Hungary | HUF | XBUD |
+| AT | Athens Exchange | Greece | EUR | ASEX |
+| RO | Bucharest Stock Exchange | Romania | RON | XBSE |
+| ZSE | Zagreb Stock Exchange | Croatia | EUR | XZAG |
 
 ### Asia-Pacific
 
-| Code | Exchange Name | Country | Asset Types | Trading Hours (Local) |
-|------|---------------|---------|-------------|---------------------|
-| T | Tokyo Stock Exchange | Japan | Stocks | 09:00-15:00 JST |
-| HK | Hong Kong Stock Exchange | Hong Kong | Stocks | 09:30-16:00 HKT |
-| SHG | Shanghai Stock Exchange | China | Stocks (A-shares) | 09:30-15:00 CST |
-| SHE | Shenzhen Stock Exchange | China | Stocks (A-shares) | 09:30-15:00 CST |
-| NSE | National Stock Exchange of India | India | Stocks, ETFs | 09:15-15:30 IST |
-| BSE | Bombay Stock Exchange | India | Stocks | 09:15-15:30 IST |
-| KO | Korea Stock Exchange | South Korea | Stocks | 09:00-15:30 KST |
-| KQ | KOSDAQ | South Korea | Stocks | 09:00-15:30 KST |
-| SI | Singapore Exchange | Singapore | Stocks, REITs | 09:00-17:00 SGT |
-| KLSE | Bursa Malaysia | Malaysia | Stocks | 09:00-17:00 MYT |
-| BK | Stock Exchange of Thailand | Thailand | Stocks | 10:00-16:40 ICT |
-| JK | Indonesia Stock Exchange | Indonesia | Stocks | 09:00-16:00 WIB |
-| TW | Taiwan Stock Exchange | Taiwan | Stocks | 09:00-13:30 CST |
-| PSE | Philippine Stock Exchange | Philippines | Stocks | 09:30-15:30 PHT |
-| AU | Australian Securities Exchange | Australia | Stocks, ETFs | 10:00-16:00 AEST |
-| NZ | New Zealand Stock Exchange | New Zealand | Stocks | 10:00-16:45 NZST |
+| Code | Exchange Name | Country | Currency | OperatingMIC |
+|------|---------------|---------|----------|--------------|
+| SHG | Shanghai Stock Exchange | China | CNY | XSHG |
+| SHE | Shenzhen Stock Exchange | China | CNY | XSHE |
+| KO | Korea Stock Exchange | Korea | KRW | XKRX |
+| KQ | KOSDAQ | Korea | KRW | XKOS |
+| TW | Taiwan Stock Exchange | Taiwan | TWD | XTAI |
+| TWO | Taiwan OTC Exchange | Taiwan | TWD | ROCO |
+| KLSE | Kuala Lumpur Exchange | Malaysia | MYR | XKLS |
+| BK | Thailand Exchange | Thailand | THB | XBKK |
+| JK | Jakarta Exchange | Indonesia | IDR | XIDX |
+| PSE | Philippine Stock Exchange | Philippines | PHP | XPHS |
+| VN | Vietnam Stocks | Vietnam | VND | XSTC |
+| CM | Colombo Stock Exchange | Sri Lanka | LKR | XCOL |
+| KAR | Karachi Stock Exchange | Pakistan | PKR | XKAR |
+| AU | Australian Securities Exchange | Australia | AUD | XASX |
 
-### Middle East & Africa
+### Middle East
 
-| Code | Exchange Name | Country | Asset Types | Trading Hours (Local) |
-|------|---------------|---------|-------------|---------------------|
-| TADAWUL | Saudi Stock Exchange (Tadawul) | Saudi Arabia | Stocks | 10:00-15:00 AST |
-| DU | Dubai Financial Market | UAE | Stocks | 10:00-14:00 GST |
-| QSE | Qatar Stock Exchange | Qatar | Stocks | 09:30-13:20 AST |
-| DFMG | Dubai Gold & Commodities Exchange | UAE | Commodities | 24/5 trading |
-| TA | Tel Aviv Stock Exchange | Israel | Stocks | 09:30-17:25 IST |
-| JSE | Johannesburg Stock Exchange | South Africa | Stocks | 09:00-17:00 SAST |
-| EGX | Egyptian Exchange | Egypt | Stocks | 10:00-14:30 EET |
+| Code | Exchange Name | Country | Currency | OperatingMIC |
+|------|---------------|---------|----------|--------------|
+| TA | Tel Aviv Stock Exchange | Israel | ILS | XTAE |
+
+### Africa
+
+| Code | Exchange Name | Country | Currency | OperatingMIC |
+|------|---------------|---------|----------|--------------|
+| JSE | Johannesburg Exchange | South Africa | ZAR | XJSE |
+| EGX | Egyptian Exchange | Egypt | EGP | NILX |
+| BC | Casablanca Stock Exchange | Morocco | MAD | XCAS |
+| GSE | Ghana Stock Exchange | Ghana | GHS | XGHA |
+| XBOT | Botswana Stock Exchange | Botswana | BWP | XBOT |
+| XNAI | Nairobi Securities Exchange | Kenya | KES | XNAI |
+| XNSA | Nigerian Stock Exchange | Nigeria | NGN | XNSA |
+| SEM | Stock Exchange of Mauritius | Mauritius | MUR | XMAU |
+| MSE | Malawi Stock Exchange | Malawi | MWK | XMSW |
+| RSE | Rwanda Stock Exchange | Rwanda | RWF | RSEX |
+| DSE | Dar es Salaam Stock Exchange | Tanzania | TZS | XDAR |
+| USE | Uganda Securities Exchange | Uganda | UGX | XUGA |
+| LUSE | Lusaka Stock Exchange | Zambia | ZMW | XLUS |
+| XZIM | Zimbabwe Stock Exchange | Zimbabwe | ZWL | XZIM |
+| VFEX | Victoria Falls Stock Exchange | Zimbabwe | ZWL | VFEX |
 
 ### Latin America
 
-| Code | Exchange Name | Country | Asset Types | Trading Hours (Local) |
-|------|---------------|---------|-------------|---------------------|
-| SA | São Paulo Stock Exchange (B3) | Brazil | Stocks | 10:00-17:00 BRT |
-| BA | Buenos Aires Stock Exchange | Argentina | Stocks | 11:00-17:00 ART |
-| SN | Santiago Stock Exchange | Chile | Stocks | 09:30-16:00 CLT |
-| CO | Colombia Stock Exchange | Colombia | Stocks | 09:30-16:00 COT |
+| Code | Exchange Name | Country | Currency | OperatingMIC |
+|------|---------------|---------|----------|--------------|
+| SA | Sao Paulo Exchange | Brazil | BRL | BVMF |
+| BA | Buenos Aires Exchange | Argentina | ARS | XBUE |
+| SN | Chilean Stock Exchange | Chile | CLP | XSGO |
+| LIM | Bolsa de Valores de Lima | Peru | PEN | XLIM |
 
 ## Special Exchange Codes
+
+These virtual exchanges also appear in the `/exchanges-list` response.
+
+| Code | Name | Currency | OperatingMIC |
+|------|------|----------|--------------|
+| FOREX | FOREX | Unknown | CDSL |
+| CC | Cryptocurrencies | USD | CRYP |
+| GBOND | Government Bonds | Unknown | null |
+| MONEY | Money Market Virtual Exchange | Unknown | null |
+| EUFUND | Europe Fund Virtual Exchange | EUR | null |
+
+**Note**: The `INDX` (Indices) code is used as a symbol suffix but does **not** appear in the `/exchanges-list` endpoint response.
 
 ### Forex (FOREX)
 
@@ -134,35 +166,32 @@ Examples:
 
 **Format**: `{CRYPTO}-{QUOTE}.CC` (hyphen separator)
 
-### Money Markets & Bonds (MONEY)
+### Government Bonds (GBOND)
 
-Government bonds and interest rates use the `.MONEY` suffix:
-
-Examples:
-- `US10Y.MONEY` - US 10-year Treasury yield
-- `US2Y.MONEY` - US 2-year Treasury yield
-- `DE10Y.MONEY` - German 10-year Bund yield
-- `GB10Y.MONEY` - UK 10-year Gilt yield
-
-### Commodities (COMM)
-
-Commodity futures use the `.COMM` suffix:
+Government bonds use the `.GBOND` suffix:
 
 Examples:
-- `CL.COMM` - Crude Oil (WTI)
-- `GC.COMM` - Gold
-- `SI.COMM` - Silver
-- `NG.COMM` - Natural Gas
+- `US10Y.GBOND` - US 10-year Treasury yield
+- `US2Y.GBOND` - US 2-year Treasury yield
+- `DE10Y.GBOND` - German 10-year Bund yield
+- `GB10Y.GBOND` - UK 10-year Gilt yield
+
+### Money Markets (MONEY)
+
+Money market instruments use the `.MONEY` suffix.
+
+### European Funds (EUFUND)
+
+European fund data uses the `.EUFUND` suffix.
 
 ### Indices (INDX)
 
 Major indices use the `.INDX` suffix:
 
 Examples:
-- `SPX.INDX` - S&P 500 Index
+- `GSPC.INDX` - S&P 500 Index
 - `DJI.INDX` - Dow Jones Industrial Average
 - `IXIC.INDX` - NASDAQ Composite
-- `FTSE.INDX` - FTSE 100
 - `GDAXI.INDX` - DAX
 - `N225.INDX` - Nikkei 225
 
@@ -206,10 +235,8 @@ curl "https://eodhd.com/api/exchange-symbol-list/US?api_token=YOUR_TOKEN"
 List all available exchanges:
 
 ```bash
-curl "https://eodhd.com/api/exchanges-list?api_token=YOUR_TOKEN"
+curl "https://eodhd.com/api/exchanges-list/?api_token=YOUR_TOKEN&fmt=json"
 ```
-
-**Note**: This endpoint may not list FOREX, CC, MONEY, COMM, or INDX "exchanges" as they are virtual groupings.
 
 ## Common Issues & Solutions
 
@@ -229,7 +256,6 @@ curl "https://eodhd.com/api/exchanges-list?api_token=YOUR_TOKEN"
 
 ## Additional Resources
 
-- **Exchange Details API**: `/exchanges/{EXCHANGE_CODE}` - Get detailed information about a specific exchange
 - **Exchange Symbol List API**: `/exchange-symbol-list/{EXCHANGE_CODE}` - List all symbols on an exchange
 - **Symbol Search API**: `/search/{QUERY}` - Search for symbols by name or ticker
 
@@ -238,24 +264,10 @@ curl "https://eodhd.com/api/exchanges-list?api_token=YOUR_TOKEN"
 | Data Type          | Freshness | Notes |
 |--------------------|-----------|-------|
 | EOD Prices         | After market close | Daily OHLCV, adjusted for splits/dividends |
-| Intraday           | 2–3 hours after close | 1m, 5m, 1h bars |
+| Intraday           | 2-3 hours after close | 1m, 5m, 1h bars |
 | Real-Time (WebSocket) | < 50 ms | US stocks, Forex, Crypto only |
-| Delayed Quotes     | 15–20 min (stocks), ~1 min (forex) | REST API live endpoint |
+| Delayed Quotes     | 15-20 min | REST API live endpoint |
 | Fundamentals       | Varies | Updated as filings are published |
-
-## Known Coverage Gaps
-
-Frequently requested but not yet available or limited:
-
-- Expanded Japan, Singapore coverage
-- Milan Exchange (expanded)
-- India (expanded)
-- Saudi Arabia
-
-## In Development
-
-- Earnings call transcripts
-- SEC reports in JSON format
 
 ## Notes
 

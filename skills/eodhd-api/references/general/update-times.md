@@ -10,7 +10,7 @@ EODHD provides different update frequencies depending on:
 - Asset class (stocks, forex, crypto, etc.)
 - Data complexity and quality checks
 
-**Important**: All times mentioned are based on official EODHD schedules and may vary slightly due to data quality checks or exchange-specific factors.
+**Important**: All times mentioned are based on official EODHD schedules and may vary slightly due to data quality checks or exchange-specific factors. Much of the data in this document, such as update times and processing delays, is empirical in nature and is provided for guidance only. The EODHD API is constantly changing and evolving, so actual behavior may differ. For any questions, please email supportlevel1@eodhistoricaldata.com
 
 ## End-of-Day (EOD) Data
 
@@ -86,10 +86,8 @@ EODHD provides different update frequencies depending on:
 | **LSE (London)** | 16:30 GMT | ~18:30-19:30 GMT | 2-3 hours |
 | **XETRA (Germany)** | 17:30 CET | ~19:30-20:30 CET | 2-3 hours |
 | **Euronext (Paris)** | 17:30 CET | ~19:30-20:30 CET | 2-3 hours |
-| **Tokyo** | 15:00 JST | ~17:00-18:00 JST | 2-3 hours |
 | **Hong Kong** | 16:00 HKT | ~18:00-19:00 HKT | 2-3 hours |
 | **Shanghai/Shenzhen** | 15:00 CST | ~17:00-18:00 CST | 2-3 hours |
-| **NSE/BSE (India)** | 15:30 IST | ~17:30-18:30 IST | 2-3 hours |
 | **EUFUND** | N/A | 19:00 GMT | Check 1 hour later (20:00 GMT) |
 
 ## Intraday Data
@@ -99,35 +97,33 @@ EODHD provides different update frequencies depending on:
 | Interval | Update Time | Coverage | Notes |
 |----------|-------------|----------|-------|
 | **5-minute bars** | 2-3 hours after close | Regular hours only | Standard delay |
-| **1-minute bars** | 11:00 PM EST | Includes post-market | US markets |
-| **Tick data** | Starts ~12:00 AM EST | Full tick history | Next day |
+| **1-minute bars** | 2-3 hours after after-hours close | Includes pre/post-market | US markets |
 
 **1-Minute Data Details**:
-- Includes post-market prices (until 20:00 EST)
-- Update starts: **23:00 EST** (11 PM)
-- Available by: **00:00 EST** (midnight)
+- Includes pre-market and post-market prices (for US stocks)
+- Update: 2-3 hours after after-hours trading ends (~20:00 EST)
 
 **5-Minute Data Details**:
 - Regular trading hours only
 - Update: 2-3 hours after market close
 - No post-market included
 
-**Tick Data Details**:
-- Update starts: Around **midnight EST**
-- Full historical tick data
-- Previous trading day only
-
 ### Historical Intraday Retention
 
-- **Retention**: Typically 30-120 days depending on plan
-- **Intervals**: 1m, 5m, 15m, 30m, 1h
+| Interval | Maximum Range |
+|----------|---------------|
+| 1m | 120 days |
+| 5m | 600 days |
+| 1h | 7200 days |
+
+- **Intervals**: 1m, 5m, 1h
 - **Format**: OHLCV bars with timestamps
 
-## Options Data
+## Options Data (Marketplace)
 
 ### EOD Options Data
 
-**Update Time**: 7:00-9:00 PM EST (older schedule) or 10:00 PM-12:00 AM EST (current schedule)
+**Update Time**: 10:00 PM-12:00 AM EST
 
 **Recommended Check**: After midnight EST for complete data
 
@@ -140,6 +136,8 @@ EODHD provides different update frequencies depending on:
 - Greeks calculations
 - Implied volatility
 - Open interest and volume
+
+**Access**: Via Marketplace API endpoints (`/api/mp/unicornbay/options/...`).
 
 ## Forex (FOREX)
 
@@ -436,8 +434,6 @@ EODHD provides different update frequencies depending on:
 - **S&P 500**: From 2000 onwards
 - **Other indices**: Current constituents only
 
-**Cost**: Included in Fundamentals API ($29.99/month) or All-In-One plan ($49.99/month)
-
 ### News Data
 
 **Standard Coverage**: From March 2021
@@ -492,8 +488,8 @@ fetch_time = market_close + timedelta(hours=3, minutes=30)
 # 5-minute bars: 3 hours after close
 fetch_time = market_close + timedelta(hours=3)
 
-# 1-minute bars (with post-market): After 11 PM
-fetch_time = datetime.combine(date.today(), time(23, 15))  # 11:15 PM EST
+# 1-minute bars (with pre/post-market): 2-3 hours after after-hours close (20:00 EST)
+fetch_time = after_hours_close + timedelta(hours=3)  # ~23:00 EST
 ```
 
 **Forex/Crypto**:
@@ -580,9 +576,7 @@ Key time zones used by EODHD:
 | Coordinated Universal Time | UTC/GMT | +0:00 | Reference time |
 | US Eastern | EST/EDT | -5:00/-4:00 | NYSE, NASDAQ |
 | Central European | CET/CEST | +1:00/+2:00 | European exchanges |
-| Japan Standard | JST | +9:00 | No DST |
 | Hong Kong | HKT | +8:00 | No DST |
-| India Standard | IST | +5:30 | No DST |
 | Australian Eastern | AEST/AEDT | +10:00/+11:00 | Sydney |
 
 **Important**: All timestamps in API responses are typically in UTC unless otherwise specified.
@@ -598,8 +592,8 @@ Key time zones used by EODHD:
 | International Stocks | 3 hours after close | Daily | Standard delay |
 | INDX Exchange | 10-15 min after updates | 5x daily | Multiple updates |
 | Intraday (5-min) | 3 hours after close | Real-time | Regular hours |
-| Intraday (1-min) | 23:15 EST | Real-time | Includes post-market |
-| Options | After midnight EST | Daily | 10 PM-midnight update |
+| Intraday (1-min) | 2-3 hrs after after-hours | Real-time | Includes pre/post-market |
+| Options (Marketplace) | After midnight EST | Daily | 10 PM-midnight update |
 | Forex | 2 hours after GMT updates | Every 4 hours | Integrity checks |
 | Crypto | 2 hours after GMT updates | Every 4 hours | Integrity checks |
 | Fundamentals (general) | 04:00-05:00 UTC | Daily | Nightly batch |

@@ -226,12 +226,12 @@ Current company:     XYZ.US (current)
 
 **Endpoint**:
 ```
-https://eodhd.com/api/exchange-symbol-list/{EXCHANGE_CODE}?api_token={YOUR_API_KEY}&delisted=1
+https://eodhd.com/api/exchange-symbol-list/{EXCHANGE_CODE}?api_token=YOUR_API_KEY&delisted=1
 ```
 
 **Parameters**:
 - `{EXCHANGE_CODE}`: Exchange code (e.g., `US`, `LSE`, `TSX`)
-- `api_token`: Your API token or `demo`
+- `api_token`: Your API token
 - `delisted=1`: **Required parameter** to include delisted tickers
 
 ### Response Format
@@ -271,7 +271,7 @@ https://eodhd.com/api/exchange-symbol-list/{EXCHANGE_CODE}?api_token={YOUR_API_K
 
 #### US Delisted Tickers
 ```bash
-https://eodhd.com/api/exchange-symbol-list/US?api_token=demo&delisted=1
+https://eodhd.com/api/exchange-symbol-list/US?api_token=YOUR_API_KEY&delisted=1
 ```
 
 #### London Stock Exchange Delisted Tickers
@@ -301,7 +301,7 @@ Once you have the list, you can search by:
 
 ```bash
 # Get all US delisted tickers
-curl "https://eodhd.com/api/exchange-symbol-list/US?api_token=demo&delisted=1&fmt=json"
+curl "https://eodhd.com/api/exchange-symbol-list/US?api_token=YOUR_API_KEY&delisted=1&fmt=json"
 ```
 
 #### Step 2: Find Your Ticker
@@ -319,17 +319,17 @@ Use the ticker code in any relevant API endpoint:
 
 ```bash
 # End-of-Day historical data (if ticker delisted after ~2014)
-https://eodhd.com/api/eod/AAAB.US?api_token=demo&fmt=json
+https://eodhd.com/api/eod/AAAB.US?api_token=YOUR_API_KEY&fmt=json
 
 # Intraday data (if available for the period and delisted after ~2014)
-https://eodhd.com/api/intraday/AAAB.US?interval=1h&api_token=demo&fmt=json
+https://eodhd.com/api/intraday/AAAB.US?interval=1h&api_token=YOUR_API_KEY&fmt=json
 
 # Fundamentals data (only if delisted after 2018)
-https://eodhd.com/api/fundamentals/AAAB.US?api_token=demo&fmt=json
+https://eodhd.com/api/fundamentals/AAAB.US?api_token=YOUR_API_KEY&fmt=json
 
 # Splits and dividends (if ticker delisted after ~2014)
-https://eodhd.com/api/splits/AAAB.US?api_token=demo&fmt=json
-https://eodhd.com/api/div/AAAB.US?api_token=demo&fmt=json
+https://eodhd.com/api/splits/AAAB.US?api_token=YOUR_API_KEY&fmt=json
+https://eodhd.com/api/div/AAAB.US?api_token=YOUR_API_KEY&fmt=json
 ```
 
 ### Data Availability by Delisting Date

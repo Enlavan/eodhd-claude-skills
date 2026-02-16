@@ -35,7 +35,7 @@ TICKER.EXCHANGE
 **Ticker Part**:
 - Usually 1-5 characters
 - Can contain letters, numbers, hyphens
-- Examples: `AAPL`, `MSFT`, `BRK-B`, `SPX`
+- Examples: `AAPL`, `MSFT`, `BRK-B`, `GSPC`
 
 **Exchange Part**:
 - 2-6 character exchange code
@@ -52,14 +52,14 @@ TICKER.EXCHANGE
 - `AAPL.US` - Apple Inc.
 - `MSFT.US` - Microsoft
 - `GOOGL.US` - Alphabet Class A
-- `BRK-B.US` - Berkshire Hathaway Class B (note the hyphen)
-- `BRK.A.US` - Berkshire Hathaway Class A (note the dot in ticker)
+- `BRK-B.US` - Berkshire Hathaway Class B (hyphen replaces dot)
+- `BRK-A.US` - Berkshire Hathaway Class A (hyphen replaces dot)
 
 **Notes**:
 - US code covers NYSE, NASDAQ, and AMEX
-- Class shares use hyphens: `BRK-B`, `GOOG`, `GOOGL`
+- Class shares use hyphens: `BRK-A`, `BRK-B`, `BF-B`
 - Preferred shares: `BAC-PL`, `JPM-PC`
-- Some tickers contain dots: escape as `BRK.A` (the exchange dot is separate)
+- Only ONE dot allowed in the full ticker string (between ticker code and exchange code). If the original ticker contains dots (e.g., `BRK.A` on the exchange), replace them with hyphens: `BRK-A.US`
 
 ### European Stocks
 
@@ -73,7 +73,6 @@ TICKER.EXCHANGE
 | XETRA | Deutsche Börse | `BMW.XETRA`, `SAP.XETRA`, `SIE.XETRA` |
 | PA | Euronext Paris | `AI.PA`, `MC.PA`, `OR.PA` |
 | AS | Euronext Amsterdam | `ASML.AS`, `PHIA.AS` |
-| MI | Borsa Italiana | `ENI.MI`, `UCG.MI` |
 | SW | SIX Swiss Exchange | `NESN.SW`, `NOVN.SW`, `ROG.SW` |
 
 **Special Cases**:
@@ -88,16 +87,12 @@ TICKER.EXCHANGE
 
 | Exchange Code | Name | Ticker Format | Examples |
 |--------------|------|---------------|----------|
-| T | Tokyo Stock Exchange | 4-digit number | `7203.T`, `9984.T` (Nintendo) |
 | HK | Hong Kong | 4-digit number | `0700.HK` (Tencent), `9988.HK` (Alibaba) |
 | SHG | Shanghai | 6-digit number | `600519.SHG` (Moutai) |
 | SHE | Shenzhen | 6-digit number | `000001.SHE` |
-| NSE | National Stock Exchange India | Text ticker | `RELIANCE.NSE`, `TCS.NSE` |
-| BSE | Bombay Stock Exchange | 6-digit number | `500325.BSE` (Reliance) |
 | KO | Korea Stock Exchange | 6-digit number | `005930.KO` (Samsung) |
 
 **Notes**:
-- Japanese tickers are numeric codes
 - Hong Kong includes leading zeros: `0700.HK` not `700.HK`
 - Chinese A-shares: Shanghai (SHG) or Shenzhen (SHE)
 
@@ -108,7 +103,6 @@ TICKER.EXCHANGE
 **Canadian Exchanges**:
 - `TO` - Toronto Stock Exchange: `SHOP.TO`, `RY.TO`
 - `V` - TSX Venture: `GOLD.V`
-- `CN` - Canadian Securities Exchange: `TRUL.CN`
 
 ### ETFs
 
@@ -175,66 +169,34 @@ TICKER.EXCHANGE
 - `USDT-USD.CC` - Tether/US Dollar
 - `USDC-USD.CC` - USD Coin/US Dollar
 
-### Bonds & Money Markets
+### Government Bonds
 
-**Format**: `{INSTRUMENT_CODE}.MONEY`
+**Format**: `{INSTRUMENT_CODE}.GBOND`
 
-**Government Bonds** (Yields):
-- `US10Y.MONEY` - US 10-year Treasury yield
-- `US2Y.MONEY` - US 2-year Treasury yield
-- `US30Y.MONEY` - US 30-year Treasury yield
-- `DE10Y.MONEY` - German 10-year Bund yield
-- `GB10Y.MONEY` - UK 10-year Gilt yield
-- `JP10Y.MONEY` - Japan 10-year JGB yield
-
-**Interest Rates**:
-- `FEDFUNDS.MONEY` - US Federal Funds Rate
-- `LIBOR3M.MONEY` - 3-month LIBOR
-
-### Commodities
-
-**Format**: `{COMMODITY_CODE}.COMM`
-
-**Energy**:
-- `CL.COMM` - Crude Oil (WTI)
-- `BZ.COMM` - Brent Crude Oil
-- `NG.COMM` - Natural Gas
-- `RB.COMM` - Gasoline
-
-**Metals**:
-- `GC.COMM` - Gold
-- `SI.COMM` - Silver
-- `HG.COMM` - Copper
-- `PL.COMM` - Platinum
-
-**Agriculture**:
-- `C.COMM` - Corn
-- `W.COMM` - Wheat
-- `S.COMM` - Soybeans
-- `CT.COMM` - Cotton
+**Government Bond Yields**:
+- `US10Y.GBOND` - US 10-year Treasury yield
+- `US2Y.GBOND` - US 2-year Treasury yield
+- `US30Y.GBOND` - US 30-year Treasury yield
+- `DE10Y.GBOND` - German 10-year Bund yield
+- `GB10Y.GBOND` - UK 10-year Gilt yield
+- `JP10Y.GBOND` - Japan 10-year JGB yield
 
 ### Indices
 
 **Format**: `{INDEX_CODE}.INDX`
 
 **US Indices**:
-- `SPX.INDX` - S&P 500
+- `GSPC.INDX` - S&P 500
 - `DJI.INDX` - Dow Jones Industrial Average
 - `IXIC.INDX` - NASDAQ Composite
-- `RUT.INDX` - Russell 2000
 - `VIX.INDX` - CBOE Volatility Index
 
 **International Indices**:
-- `FTSE.INDX` - FTSE 100 (UK)
 - `GDAXI.INDX` - DAX (Germany)
 - `FCHI.INDX` - CAC 40 (France)
 - `N225.INDX` - Nikkei 225 (Japan)
 - `HSI.INDX` - Hang Seng (Hong Kong)
 - `SENSEX.INDX` - BSE Sensex (India)
-
-**Alternative**: Some indices can also be accessed with their stock exchange suffix:
-- `^GSPC.US` - S&P 500 (alternative format)
-- `^DJI.US` - Dow Jones (alternative format)
 
 ## Special Characters & Encoding
 
@@ -246,13 +208,13 @@ TICKER.EXCHANGE
 - No encoding needed in URLs
 
 **Dots** (`.`) in Tickers:
-- Used in some tickers: `BRK.A.US` (Berkshire Hathaway Class A)
-- The final dot separates the exchange code
-- May need special handling: `BRK%2EA.US` for URL encoding
+- Dots are **NOT allowed** in the ticker part — only ONE dot in the full string (between ticker and exchange)
+- If the original exchange ticker contains a dot (e.g., `BRK.A`), replace it with a hyphen: `BRK-A.US`
+- See the "Handling Dots in Ticker Symbols" section in `stock-types-ticker-suffixes-guide.md`
 
 **Carets** (`^`):
-- Some indices use caret prefix: `^GSPC.US`
-- URL encode as `%5E`: `%5EGSPC.US`
+- Some tickers use caret prefix
+- URL encode as `%5E` in API requests
 
 ### URL Encoding
 
@@ -260,13 +222,14 @@ When constructing API URLs, special characters should be encoded:
 
 | Character | URL Encoded | Example |
 |-----------|-------------|---------|
-| `.` | `%2E` | `BRK%2EA.US` |
-| `^` | `%5E` | `%5EGSPC.US` |
-| `&` | `%26` | `M%26M.NSE` |
+| `^` | `%5E` | `%5EAEX.AS` |
+| `&` | `%26` | `A%26B.US` |
 | Space | `%20` | (avoid spaces) |
 | `/` | `%2F` | (avoid in tickers) |
 
-**Important**: The `&` character is a URL query parameter delimiter. If a ticker name contains `&` (e.g., `M&M.NSE`), the part after `&` will be interpreted as a separate query parameter. Always encode `&` as `%26` in ticker names.
+> **Note**: Dots in ticker symbols should be replaced with hyphens (`BRK.A` → `BRK-A.US`), not URL-encoded.
+
+**Important**: The `&` character is a URL query parameter delimiter. If a ticker name contains `&`, the part after `&` will be interpreted as a separate query parameter. Always encode `&` as `%26` in ticker names.
 
 **Note**: Most HTTP libraries handle URL encoding automatically.
 
@@ -345,8 +308,10 @@ curl "https://eodhd.com/api/exchanges/US?api_token=YOUR_TOKEN"
 Regular expression for basic validation:
 
 ```regex
-^[A-Z0-9\-\^\.]+\.(US|LSE|XETRA|PA|AS|...|FOREX|CC|MONEY|COMM|INDX)$
+^[A-Z0-9\-\^]+\.(US|LSE|XETRA|PA|AS|...|FOREX|CC|MONEY|GBOND|EUFUND|INDX)$
 ```
+
+> **Note**: Dots are not allowed in the ticker part — only hyphens, letters, numbers, and carets.
 
 ### Validation Steps
 
@@ -360,13 +325,11 @@ Regular expression for basic validation:
 Some instruments have multiple valid symbols:
 
 **S&P 500**:
-- `SPX.INDX` - Direct index
-- `^GSPC.US` - Alternative format
+- `GSPC.INDX` - Direct index
 - `SPY.US` - ETF tracking the index
 
 **Berkshire Hathaway Class A**:
-- `BRK.A.US` - Standard format
-- May require URL encoding as `BRK%2EA.US`
+- `BRK-A.US` - Dot replaced with hyphen (original exchange ticker: `BRK.A`)
 
 **Dual Listings**:
 - Companies listed on multiple exchanges have multiple symbols
@@ -400,14 +363,13 @@ curl "https://eodhd.com/api/symbol-change-history?api_token=YOUR_TOKEN"
 
 ## Quick Reference
 
-| Asset Type | Format | Example |
-|-----------|--------|---------|
-| US Stock | `{TICKER}.US` | `AAPL.US` |
-| European Stock | `{TICKER}.{EXCHANGE}` | `BMW.XETRA` |
-| Asian Stock | `{TICKER}.{EXCHANGE}` | `7203.T` |
-| ETF | `{TICKER}.{EXCHANGE}` | `SPY.US` |
+| Asset Type | Format | Example        |
+|-----------|--------|----------------|
+| US Stock | `{TICKER}.US` | `AAPL.US`      |
+| European Stock | `{TICKER}.{EXCHANGE}` | `BMW.XETRA`    |
+| Asian Stock | `{TICKER}.{EXCHANGE}` | `0700.HK`      |
+| ETF | `{TICKER}.{EXCHANGE}` | `SPY.US`       |
 | Forex | `{BASE}{QUOTE}.FOREX` | `EURUSD.FOREX` |
-| Crypto | `{CRYPTO}-{QUOTE}.CC` | `BTC-USD.CC` |
-| Bond/Rate | `{CODE}.MONEY` | `US10Y.MONEY` |
-| Commodity | `{CODE}.COMM` | `GC.COMM` |
-| Index | `{CODE}.INDX` | `SPX.INDX` |
+| Crypto | `{CRYPTO}-{QUOTE}.CC` | `BTC-USD.CC`   |
+| Government Bond | `{CODE}.GBOND` | `US10Y.GBOND`  |
+| Index | `{CODE}.INDX` | `GSPC.INDX`    |

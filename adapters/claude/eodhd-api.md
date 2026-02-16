@@ -76,7 +76,6 @@ Quick reference for common endpoints:
 | Fundamentals | `fundamentals` | `--endpoint fundamentals --symbol AAPL.US` |
 | News | `news` | `--endpoint news --symbol AAPL.US --limit 10` |
 | Technical indicators | `technical` | `--endpoint technical --symbol AAPL.US --function sma --period 50` |
-| Options | `options` | `--endpoint options --symbol AAPL.US` |
 | Screening | `screener` | `--endpoint screener --limit 20` |
 | Macro data | `macro-indicator` | `--endpoint macro-indicator --symbol USA` |
 

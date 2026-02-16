@@ -5,7 +5,7 @@
 Use EODHD market data APIs to fetch, normalize, and summarize financial data including:
 - Prices (historical, intraday, real-time)
 - Company fundamentals and financial statements
-- Options data with Greeks
+- Options data with Greeks (via Marketplace API)
 - Technical indicators
 - News and sentiment
 - Macro-economic indicators
@@ -21,7 +21,7 @@ Use this skill when the user asks for any of the following:
 - Intraday price bars (1m, 5m, 1h intervals)
 - Real-time quotes (delayed 15-20 minutes) or extended US stock quotes with bid/ask
 - Company fundamentals, financials, or valuation metrics
-- Options chains, Greeks, or options analytics
+- Options chains, Greeks, or options analytics (via Marketplace endpoints)
 - Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, etc.)
 - Company news or market sentiment
 - Stock screening by fundamental/technical criteria
@@ -83,7 +83,6 @@ Use this skill when the user asks for any of the following:
 | `sentiment` | Daily sentiment scores | `--symbol`, `--from-date`, `--to-date` |
 | `news-word-weights` | Trending topics in news | `--symbol`, `--from-date`, `--to-date`, `--limit` |
 | `technical` | Technical indicators | `--symbol`, `--function`, `--period` |
-| `options` | Options chains | `--symbol` |
 | `dividends` | Dividend history | `--symbol` |
 | `splits` | Stock splits | `--symbol` |
 | `macro-indicator` | Macro data | `--symbol` (country code), `--indicator` |
@@ -106,7 +105,7 @@ Use this skill when the user asks for any of the following:
 | `ust/yield-rates` | US Treasury Par Yield Curve Rates | `--filter-year` |
 | `ust/real-yield-rates` | US Treasury Par Real Yield Curve Rates | `--filter-year` |
 
-**API call costs**: Most endpoints cost 1 call. `technical` and `intraday` cost 5 calls. `fundamentals` and `options` cost 10 calls. News-related endpoints (`news`, `sentiment`, `news-word-weights`) cost 5 calls + 5 per ticker. Bulk endpoints cost 100 calls (+ N symbols if `--symbols` used). See `references/general/rate-limits.md` for full details.
+**API call costs**: Most endpoints cost 1 call. `technical` and `intraday` cost 5 calls. `fundamentals` costs 10 calls. News-related endpoints (`news`, `sentiment`, `news-word-weights`) cost 5 calls + 5 per ticker. Bulk endpoints cost 100 calls (+ N symbols if `--symbols` used). See `references/general/rate-limits.md` for full details.
 
 ## Output requirements
 
@@ -136,7 +135,7 @@ See `references/workflows.md` for detailed recipes:
 3. **Event study**: Intraday bars around earnings/announcements
 4. **Macro context**: Stock performance vs. economic indicators
 5. **Technical analysis**: Price data + indicators (SMA, RSI, MACD)
-6. **Options analysis**: Options chains + Greeks for strategy evaluation
+6. **Options analysis**: Options chains + Greeks via Marketplace endpoints
 
 ## Example commands
 

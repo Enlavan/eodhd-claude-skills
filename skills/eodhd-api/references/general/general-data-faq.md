@@ -34,7 +34,7 @@ If you query AMEX and get very few results, the tickers have likely been mapped 
 
 ### Ampersand (&) in Ticker Names
 
-Some ticker names contain the `&` character (e.g., `M&M.NSE`). Because `&` is a URL delimiter, the part after `&` gets interpreted as a new query parameter. Replace `&` with `%26` in the URL. For example: `M%26M.NSE`.
+Some ticker names contain the `&` character. Because `&` is a URL delimiter, the part after `&` gets interpreted as a new query parameter. Always replace `&` with `%26` in the URL.
 
 ### Dot in Search Query
 

@@ -14,7 +14,7 @@
 5. [Forex (FOREX)](#forex-forex)
 6. [Cryptocurrency (CC)](#cryptocurrency-cc)
 7. [Funds (EUFUND, MONEY)](#funds-eufund-money)
-8. [Bonds (GBOND, BOND)](#bonds-gbond-bond)
+8. [Government Bonds (GBOND)](#government-bonds-gbond)
 9. [Hong Kong Exchange (HK)](#hong-kong-exchange-hk)
 10. [Usage in APIs](#usage-in-apis)
 11. [Common Tickers Reference](#common-tickers-reference)
@@ -40,7 +40,6 @@ Some exchanges are **not included** in the standard Exchanges API list (`/exchan
 - EUFUND (European Funds)
 - MONEY (Money Market Funds)
 - GBOND (Government Bonds)
-- BOND (Corporate Bonds)
 - HK (Hong Kong Exchange)
 
 ### Why Separate?
@@ -60,7 +59,6 @@ Some exchanges are **not included** in the standard Exchanges API list (`/exchan
 | **Tickers Available** | Via `/exchange-symbol-list/{CODE}` | Via `/exchange-symbol-list/{CODE}` |
 | **EOD Data Available** | ✅ Yes | ✅ Yes |
 | **Intraday Data** | ✅ Yes (most) | ⚠️ Varies |
-| **Fundamentals** | ✅ Yes (stocks) | ⚠️ Limited |
 
 **Important**: You can use tickers from special exchanges **directly** in all relevant APIs (EOD, Intraday, Technical Indicators, etc.).
 
@@ -78,7 +76,6 @@ Some exchanges are **not included** in the standard Exchanges API list (`/exchan
 | **EUFUND** | European Funds | Various mutual funds | EOD, Fundamentals |
 | **MONEY** | Money Market Funds | Money market instruments | EOD |
 | **GBOND** | Government Bonds | Government debt securities | EOD |
-| **BOND** | Corporate Bonds | Corporate debt securities | EOD |
 | **HK** | Hong Kong Exchange | 0700.HK (Tencent), 0941.HK (China Mobile) | EOD, Fundamentals |
 
 ### Ticker Format
@@ -229,9 +226,8 @@ for idx, row in sp_indices.iterrows():
 
 **Coverage**:
 - US indices (S&P 500, Nasdaq, Dow Jones)
-- European indices (FTSE, DAX, CAC)
+- European indices (DAX, CAC)
 - Asian indices (Nikkei, Hang Seng, Shanghai)
-- Global indices (MSCI World, FTSE All-World)
 - Sector indices
 - Custom indices
 
@@ -273,15 +269,6 @@ curl "https://eodhd.com/api/exchange-symbol-list/INDX?api_token=demo&fmt=json"
     "Isin": null
   },
   {
-    "Code": "FTSE",
-    "Name": "FTSE 100 Index",
-    "Country": "UK",
-    "Exchange": "INDX",
-    "Currency": "GBP",
-    "Type": "INDEX",
-    "Isin": null
-  },
-  {
     "Code": "N225",
     "Name": "Nikkei 225",
     "Country": "Japan",
@@ -300,13 +287,11 @@ curl "https://eodhd.com/api/exchange-symbol-list/INDX?api_token=demo&fmt=json"
 GSPC.INDX     - S&P 500
 NDX.INDX      - NASDAQ 100
 DJI.INDX      - Dow Jones Industrial Average
-RUT.INDX      - Russell 2000
 VIX.INDX      - CBOE Volatility Index
 ```
 
 **European Indices**:
 ```
-FTSE.INDX     - FTSE 100 (UK)
 GDAXI.INDX    - DAX (Germany)
 FCHI.INDX     - CAC 40 (France)
 STOXX50E.INDX - EURO STOXX 50
@@ -760,15 +745,13 @@ print(f"Fund NAV on 2023-12-31: ${fund_data[-1]['close']:.2f}")
 
 ---
 
-## Bonds (GBOND, BOND)
+## Government Bonds (GBOND)
 
 ### Overview
 
-**Exchange Codes**:
-- `GBOND` - Government Bonds (treasuries, sovereign debt)
-- `BOND` - Corporate Bonds
+**Exchange Code**: `GBOND` - Government Bonds (treasuries, sovereign debt)
 
-**Description**: Fixed income securities.
+**Description**: Government bond yield data.
 
 ### Finding Bonds
 
@@ -776,9 +759,6 @@ print(f"Fund NAV on 2023-12-31: ${fund_data[-1]['close']:.2f}")
 ```bash
 # Government Bonds
 curl "https://eodhd.com/api/exchange-symbol-list/GBOND?api_token=demo&fmt=json"
-
-# Corporate Bonds
-curl "https://eodhd.com/api/exchange-symbol-list/BOND?api_token=demo&fmt=json"
 ```
 
 **Response Sample (GBOND)**:
@@ -1080,10 +1060,8 @@ curl "https://eodhd.com/api/fundamentals/0700.HK?api_token=demo&fmt=json"
 | | GSPC.INDX | S&P 500 | USD |
 | | NDX.INDX | NASDAQ 100 | USD |
 | | DJI.INDX | Dow Jones | USD |
-| | RUT.INDX | Russell 2000 | USD |
 | | VIX.INDX | Volatility Index | USD |
 | **International Indices** | | | |
-| | FTSE.INDX | FTSE 100 | GBP |
 | | GDAXI.INDX | DAX | EUR |
 | | N225.INDX | Nikkei 225 | JPY |
 | | HSI.INDX | Hang Seng | HKD |
@@ -1117,8 +1095,6 @@ class SpecialExchangeHelper:
         'S&P 500': 'GSPC.INDX',
         'NASDAQ 100': 'NDX.INDX',
         'Dow Jones': 'DJI.INDX',
-        'Russell 2000': 'RUT.INDX',
-        'FTSE 100': 'FTSE.INDX',
         'DAX': 'GDAXI.INDX',
         'Nikkei 225': 'N225.INDX'
     }
@@ -1163,7 +1139,7 @@ class SpecialExchangeHelper:
     @staticmethod
     def is_special_exchange(ticker):
         """Check if ticker uses a special exchange."""
-        special_exchanges = ['INDX', 'FOREX', 'CC', 'EUFUND', 'MONEY', 'GBOND', 'BOND', 'HK']
+        special_exchanges = ['INDX', 'FOREX', 'CC', 'EUFUND', 'MONEY', 'GBOND', 'HK']
         exchange = ticker.split('.')[-1] if '.' in ticker else None
         return exchange in special_exchanges
 
@@ -1332,7 +1308,7 @@ def safe_get_special_exchange_data(ticker, api_token):
         exchange = ticker.split('.')[-1]
 
         # Verify it's a known exchange
-        known_exchanges = ['INDX', 'FOREX', 'CC', 'EUFUND', 'MONEY', 'GBOND', 'BOND', 'HK']
+        known_exchanges = ['INDX', 'FOREX', 'CC', 'EUFUND', 'MONEY', 'GBOND', 'HK']
         if exchange not in known_exchanges:
             raise ValueError(f"Unknown exchange: {exchange}")
 
@@ -1368,7 +1344,7 @@ if data:
 ### Key Takeaways
 
 1. **Special Exchanges Not in `/exchanges` API**
-   - INDX, FOREX, CC, EUFUND, MONEY, GBOND, BOND, HK
+   - INDX, FOREX, CC, EUFUND, MONEY, GBOND, HK
    - Still fully supported across EODHD APIs
 
 2. **Finding Tickers**

@@ -789,18 +789,18 @@ Found 2 tickers
 identifier = PrimaryTickerIdentifier(api_token)
 
 # Check ADR
-result = identifier.identify_primary_ticker("TM", "US")
+result = identifier.identify_primary_ticker("BABA", "US")
 print(result)
 
 # Output:
 {
-  "input_ticker": "TM.US",
-  "primary_ticker": "7203.T",  # Tokyo Stock Exchange
+  "input_ticker": "BABA.US",
+  "primary_ticker": "9988.HK",  # Hong Kong Stock Exchange
   "method": "PrimaryTicker API field",
   "confidence": "high"
 }
 
-# Recommendation: Use 7203.T for fundamentals
+# Recommendation: Use 9988.HK for fundamentals
 ```
 
 ### Scenario 2: ADR without PrimaryTicker Field

@@ -5,13 +5,15 @@ Source: financial-apis (User API)
 Docs: https://eodhd.com/financial-apis/user-api
 Provider: EODHD
 Base URL: https://eodhd.com/api
-Path: /user
+Path: /internal-user
 Method: GET
 Auth: api_token (query)
 
 ## Purpose
 
-Returns account details for the subscriber associated with the given API token. Use this endpoint to verify authentication, check remaining API quota, monitor daily usage, and retrieve subscription information. No symbol or additional parameters are required.
+Returns account details for the subscriber associated with the given API token. Use this endpoint to verify authentication, check remaining API quota, monitor daily usage, retrieve subscription information, and check Marketplace subscription status including reset times. No symbol or additional parameters are required.
+
+> **Note**: The actual endpoint path is `/api/internal-user`. The legacy `/api/user` path may also work but `/api/internal-user` returns the complete response including `availableDataFeeds` and `availableMarketplaceDataFeeds`.
 
 ## Parameters
 
@@ -23,20 +25,45 @@ Returns account details for the subscriber associated with the given API token. 
 
 ```json
 {
-  "name": "Moomoo LLC",
-  "email": "user@example.com",
-  "subscriptionType": "commercial",
-  "paymentMethod": "Wire",
-  "apiRequests": 74535,
-  "apiRequestsDate": "2026-02-16",
+  "name": "Helmut Schiller",
+  "email": "helmut.shiller@gmx.de",
+  "subscriptionType": "monthly",
+  "paymentMethod": "PayPal",
+  "apiRequests": 5301,
+  "apiRequestsDate": "2026-01-25",
   "dailyRateLimit": 100000,
-  "extraLimit": 137909,
-  "inviteToken": "X6MKGMGM",
-  "inviteTokenClicked": 7,
+  "extraLimit": 500,
+  "inviteToken": null,
+  "inviteTokenClicked": 0,
   "subscriptionMode": "paid",
-  "canManageOrganizations": false
+  "canManageOrganizations": false,
+  "availableDataFeeds": [
+    "Bulk Splits and Dividends API",
+    "News API",
+    "EOD Historical Data",
+    "Search API",
+    "dividends",
+    "Dividends Data Feed",
+    "Split Data Feed",
+    "Live (delayed) Data API",
+    "CBOE Data API",
+    "Sentiment Data API",
+    "Exchanges List API",
+    "Daily Treasury Bill Rates",
+    "Daily Treasury Real Long-Term Rates, Daily Treasury Long-Term Rates",
+    "Daily Treasury Par Yield Curve Rates",
+    "Daily Treasury Par Real Yield Curve Rates"
+  ],
+  "availableMarketplaceDataFeeds": {
+    "dailyRateLimit": 100000,
+    "requestsSpent": 80,
+    "timeToReset": "19:01 GMT+0000",
+    "subscriptions": ["US Stock Options Data API"]
+  }
 }
 ```
+
+> **Note**: When no Marketplace subscriptions are active, `availableMarketplaceDataFeeds` is an empty array `[]` instead of an object.
 
 ### Output Format
 
@@ -45,24 +72,37 @@ Returns account details for the subscriber associated with the given API token. 
 | name | string | Name of the subscriber associated with the API token |
 | email | string | Email of the subscriber associated with the API token |
 | subscriptionType | string | Subscription type (e.g., monthly, yearly, commercial) |
-| paymentMethod | string | Payment method (e.g., PayPal, Stripe, Wire) |
+| paymentMethod | string | Payment method (e.g., PayPal, Stripe, Wire, Not Available) |
 | apiRequests | integer | Number of API calls on the latest day of API usage. Resets at midnight GMT, but shows the previous day's count until a new request is made after reset |
 | apiRequestsDate | string (YYYY-MM-DD) | Date of the latest API request |
-| dailyRateLimit | integer | Maximum number of API calls allowed per day |
+| dailyRateLimit | integer | Maximum number of API calls allowed per day for the main subscription |
 | extraLimit | integer | Remaining amount of additionally purchased API calls |
-| inviteToken | string | Invitation token for the affiliate program |
+| inviteToken | string\|null | Invitation token for the affiliate program |
 | inviteTokenClicked | integer | Number of invite token clicks |
-| subscriptionMode | string | Subscription mode (e.g., paid) |
+| subscriptionMode | string | Subscription mode: `demo`, `free`, or `paid` |
 | canManageOrganizations | boolean | Whether the user can manage organizations |
+| availableDataFeeds | array | List of available data feed names for the main subscription |
+| availableMarketplaceDataFeeds | object\|array | Marketplace subscription info (object when active, empty array `[]` when none) |
+
+### Marketplace Data Feeds Object
+
+When Marketplace subscriptions are active, `availableMarketplaceDataFeeds` is an object:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| dailyRateLimit | integer | Maximum daily API calls per Marketplace subscription (100,000) |
+| requestsSpent | integer | Number of Marketplace API calls used in the current 24-hour period |
+| timeToReset | string | Time when all Marketplace subscription limits reset (e.g., `19:01 GMT+0000`). Shared across all Marketplace products — based on when the user first made any Marketplace API request. |
+| subscriptions | array | List of active Marketplace subscription names |
 
 ## Example Requests
 
 ```bash
-# Get user details
-curl "https://eodhd.com/api/user?api_token=YOUR_TOKEN"
+# Get user details (recommended endpoint)
+curl "https://eodhd.com/api/internal-user?api_token=YOUR_TOKEN"
 
 # Using the demo key
-curl "https://eodhd.com/api/user?api_token=demo"
+curl "https://eodhd.com/api/internal-user?api_token=demo"
 
 # Using the helper client
 python eodhd_client.py --endpoint user
@@ -71,11 +111,13 @@ python eodhd_client.py --endpoint user
 ## Notes
 
 - No symbol or date parameters are required
-- The `apiRequests` counter resets at midnight GMT each day
+- The `apiRequests` counter resets at midnight GMT each day (for the main subscription)
 - The count shown reflects the latest day any request was made; it does not update until a new request occurs after the midnight reset
-- API calls vs API requests: some endpoints consume more than 1 API call per request (see EODHD documentation for details)
+- API calls vs API requests: some endpoints consume more than 1 API call per request (see rate-limits.md for details)
 - Useful for verifying that your API token is valid and checking remaining quota before making data requests
 - API call consumption: 1 call per request
+- **Marketplace limits**: The `availableMarketplaceDataFeeds.timeToReset` field shows when all Marketplace subscription limits reset. Each Marketplace subscription has its own separate 100,000-call limit, but they all share the same reset time.
+- **Marketplace reset time**: The reset time is based on when the user first made any Marketplace API request. All Marketplace subscriptions reset at this same time every 24 hours.
 
 ## HTTP Status Codes
 

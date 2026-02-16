@@ -217,7 +217,7 @@ EODHD does not keep two versions of fundamental data. If there is a restatement,
 
 ### Extended Fundamentals Subscription
 
-The Bulk Fundamentals feature (allowing bulk requests with a stock list) requires the **Extended Fundamentals** package at $119.99/month (personal usage price). This is essentially the All-in-One plan with bulk fundamentals added. Users are subscribed to this plan manually by request.
+The Bulk Fundamentals feature (allowing bulk requests with a stock list) requires the **Extended Fundamentals** package. This is essentially the All-in-One plan with bulk fundamentals added. Users are subscribed to this plan manually by request. See [eodhd.com](https://eodhd.com/) for current pricing.
 
 ### 504 Timeout Errors
 

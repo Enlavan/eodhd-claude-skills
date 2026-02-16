@@ -90,13 +90,6 @@ python skills/eodhd-api/scripts/eodhd_client.py \
   --indicator gdp_growth_annual
 ```
 
-### Options data
-```bash
-python skills/eodhd-api/scripts/eodhd_client.py \
-  --endpoint options \
-  --symbol AAPL.US
-```
-
 ### Earnings calendar
 ```bash
 python skills/eodhd-api/scripts/eodhd_client.py \

@@ -4,7 +4,7 @@ This document summarizes EODHD subscription plans and feature access, so agents 
 
 ## Self-Serve Plans
 
-Self-serve subscriptions start at **19.99/month** and are available via [eodhd.com](https://eodhd.com).
+Self-serve subscriptions are available via [eodhd.com](https://eodhd.com). See the website for current pricing.
 
 A **free plan** is available for testing and evaluation, with limited API call allowances.
 

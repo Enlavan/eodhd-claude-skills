@@ -369,33 +369,36 @@ def get_token():
 
 ## Authentication Errors
 
-### Invalid Token
+### Invalid or Expired Token
 
-**Error Response**:
-```json
-{
-  "error": "Invalid API token"
-}
+**Error Response**: The API returns plain text `Unauthenticated` (not JSON), regardless of the requested format (`fmt=json` or `fmt=csv`).
+
+**Real example**:
+```bash
+$ curl "https://eodhd.com/api/exchange-symbol-list/INDX?api_token=6372322e374f23.92183431&fmt=json"
+Unauthenticated
+
+$ curl "https://eodhd.com/api/exchange-symbol-list/INDX?api_token=6372322e374f23.92183431&fmt=csv"
+Unauthenticated
 ```
 
-**HTTP Status**: 401 Unauthorized
+**With a valid token, the same request succeeds**:
+```bash
+$ curl "https://eodhd.com/api/exchange-symbol-list/INDX?api_token=YOUR_VALID_TOKEN&fmt=json"
+[{"Code":"000906","Name":"China Securities 800","Country":"China","Exchange":"INDX","Currency":"CNY","Type":"INDEX","Isin":null},...]
+```
+
+**Important**: The error response is always plain text `Unauthenticated` — it is **not** a JSON object. Your code must handle this plain-text response rather than attempting to parse JSON.
 
 **Solutions**:
-- Verify token is correct
+- Verify token is correct (copy-paste from account dashboard)
 - Check for typos or extra spaces
-- Ensure token hasn't expired
+- Ensure token hasn't been revoked or expired
 - Try with demo token to confirm API is working
 
 ### Missing Token
 
-**Error Response**:
-```json
-{
-  "error": "API token is required"
-}
-```
-
-**HTTP Status**: 401 Unauthorized
+**Error Response**: Plain text `Unauthenticated`
 
 **Solutions**:
 - Add `?api_token=YOUR_TOKEN` to URL
@@ -423,31 +426,111 @@ def get_token():
 
 ### User Details Endpoint
 
-Verify your token and check account limits:
+Verify your token and check account details using the `/api/internal-user` endpoint:
 
 ```bash
-curl "https://eodhd.com/api/user?api_token=YOUR_TOKEN"
+curl "https://eodhd.com/api/internal-user?api_token=YOUR_TOKEN"
 ```
 
-**Response**:
+**Real example** (using demo token):
+```bash
+$ curl "https://eodhd.com/api/internal-user?api_token=demo"
+```
+
+**Response** (demo account — no Marketplace subscriptions):
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "plan": "All-In-One",
-  "apiRequests": 50000,
-  "apiRequestsUsed": 1234,
-  "apiRequestsRemaining": 48766,
+  "name": "API Documentation 2",
+  "email": "supportlevel1@eodhistoricaldata.com",
+  "subscriptionType": "test",
+  "paymentMethod": "Not Available",
+  "apiRequests": 19340,
+  "apiRequestsDate": "2026-02-16",
   "dailyRateLimit": 100000,
-  "dailyRateLimitUsed": 5678
+  "extraLimit": 0,
+  "inviteToken": null,
+  "inviteTokenClicked": 0,
+  "subscriptionMode": "demo",
+  "canManageOrganizations": false,
+  "availableDataFeeds": [],
+  "availableMarketplaceDataFeeds": []
 }
 ```
 
+**Response** (paid account with Marketplace subscriptions):
+```json
+{
+  "name": "John Doe",
+  "email": "john.doe@gmx.de",
+  "subscriptionType": "monthly",
+  "paymentMethod": "PayPal",
+  "apiRequests": 5301,
+  "apiRequestsDate": "2026-01-25",
+  "dailyRateLimit": 100000,
+  "extraLimit": 500,
+  "inviteToken": null,
+  "inviteTokenClicked": 0,
+  "subscriptionMode": "paid",
+  "canManageOrganizations": false,
+  "availableDataFeeds": [
+    "Bulk Splits and Dividends API",
+    "News API",
+    "EOD Historical Data",
+    "Search API",
+    "dividends",
+    "Dividends Data Feed",
+    "Split Data Feed",
+    "Live (delayed) Data API",
+    "CBOE Data API",
+    "Sentiment Data API",
+    "Exchanges List API",
+    "Daily Treasury Bill Rates",
+    "Daily Treasury Real Long-Term Rates, Daily Treasury Long-Term Rates",
+    "Daily Treasury Par Yield Curve Rates",
+    "Daily Treasury Par Real Yield Curve Rates"
+  ],
+  "availableMarketplaceDataFeeds": {
+    "dailyRateLimit": 100000,
+    "requestsSpent": 80,
+    "timeToReset": "19:01 GMT+0000",
+    "subscriptions": ["US Stock Options Data API"]
+  }
+}
+```
+
+**Response Fields**:
+| Field | Description |
+|-------|-------------|
+| `name` | Account name |
+| `email` | Account email |
+| `subscriptionType` | Subscription plan type (e.g., `monthly`, `yearly`, `commercial`, `test`) |
+| `paymentMethod` | Payment method on file (e.g., `PayPal`, `Stripe`, `Wire`, `Not Available`) |
+| `apiRequests` | Number of API requests made on `apiRequestsDate` |
+| `apiRequestsDate` | Date for the request count |
+| `dailyRateLimit` | Maximum daily API requests allowed for the main subscription |
+| `extraLimit` | Remaining amount of additionally purchased API calls |
+| `inviteToken` | Invitation token for the affiliate program |
+| `inviteTokenClicked` | Number of invite token clicks |
+| `subscriptionMode` | Subscription mode: `demo`, `free`, or `paid` |
+| `canManageOrganizations` | Whether the account can manage organizations |
+| `availableDataFeeds` | Array of available data feed names for the main subscription |
+| `availableMarketplaceDataFeeds` | Marketplace subscription info (see below). Empty array `[]` if no Marketplace subscriptions. |
+
+**Marketplace Data Feeds Object** (when Marketplace subscriptions are active):
+| Field | Description |
+|-------|-------------|
+| `dailyRateLimit` | Maximum daily API calls per Marketplace subscription (100,000) |
+| `requestsSpent` | Number of Marketplace API calls used in the current 24-hour period |
+| `timeToReset` | Time when all Marketplace subscription limits reset (e.g., `19:01 GMT+0000`). This is the same reset time for all Marketplace products on the account — based on when the user first made any Marketplace API request. |
+| `subscriptions` | Array of active Marketplace subscription names (e.g., `["US Stock Options Data API"]`) |
+
+> **Note**: Each Marketplace subscription has its own separate 100,000-call daily limit pool, but all Marketplace subscriptions share the same reset time (`timeToReset`). These limits are also separate from the main subscription `dailyRateLimit`. See `rate-limits.md` for full details.
+
 **Use Cases**:
 - Verify token is valid
-- Check remaining API calls
-- Monitor usage
-- Validate plan features
+- Check daily API request count vs limit
+- Monitor subscription type and mode
+- Validate available data feeds
 
 ## Multiple Tokens
 
@@ -505,8 +588,10 @@ echo $EODHD_API_TOKEN
 # Test with demo token
 curl "https://eodhd.com/api/eod/AAPL.US?api_token=demo&fmt=json"
 
-# Test with your token
-curl "https://eodhd.com/api/user?api_token=$EODHD_API_TOKEN"
+# Test with your token — check account status
+curl "https://eodhd.com/api/internal-user?api_token=$EODHD_API_TOKEN"
+
+# If you see "Unauthenticated" (plain text), your token is invalid
 ```
 
 ### Issue: Token in Version Control

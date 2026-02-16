@@ -20,7 +20,6 @@ Quick reference for financial, technical, and EODHD-specific terms used across t
 | Greeks | Options risk measures — Delta, Gamma, Theta, Vega, Rho |
 | Forex | Foreign exchange — currency trading |
 | Crypto | Cryptocurrency trading data |
-| Commodities | Physical goods traded (gold, oil, wheat) |
 | Index | Basket of securities representing a market segment (e.g., S&P 500) |
 | Dividend | Company payment to shareholders |
 | Split | Stock division increasing share count (e.g., 2:1 split) |

@@ -38,7 +38,6 @@ This guide covers authentication for **main REST API endpoints**, including:
 - Live (Delayed) Stock Prices
 - Fundamentals Data
 - Calendar Data (Earnings, Splits, IPOs)
-- Options Data
 - Technical Indicators
 - Exchanges & Symbols Lists
 - Bulk API
@@ -128,10 +127,6 @@ These demo tickers work across **every main REST endpoint** where the asset clas
 
 #### Technical Analysis APIs
 - Technical Indicators (SMA, EMA, RSI, MACD, etc.)
-
-#### Options Data APIs (for stocks)
-- Options API
-- Options Expirations
 
 #### Reference Data APIs
 - Exchange Symbol List
@@ -268,7 +263,7 @@ https://eodhd.com/api/eod/AAPL.US?api_token=demo
 
 # ❌ Fails - Not a demo ticker
 https://eodhd.com/api/eod/GOOGL.US?api_token=demo
-# Returns: {"error": "Demo API key is limited to specific tickers"}
+# Returns plain text: Unauthenticated
 ```
 
 ### No Time Restrictions
@@ -353,9 +348,6 @@ https://eodhd.com/api/intraday/AAPL.US?interval=5m&api_token=demo&fmt=json
 
 # Technical Indicators - SMA
 https://eodhd.com/api/technical/AAPL.US?function=sma&period=50&api_token=demo&fmt=json
-
-# Options Data
-https://eodhd.com/api/options/AAPL.US?api_token=demo&fmt=json
 ```
 
 #### MSFT.US - Microsoft Corporation
@@ -709,7 +701,7 @@ curl "https://eodhd.com/api/real-time/BTC-USD.CC?api_token=demo&fmt=json" | jq '
 - 150,000+ stocks, ETFs, and funds
 - 1,100+ Forex pairs
 - 1,000+ cryptocurrencies
-- Bonds, commodities, indices
+- Bonds, indices
 
 **Higher Rate Limits**:
 - Unlimited daily requests (on most plans)
@@ -830,14 +822,14 @@ def make_api_request(url, params):
         return response.json()
 
     except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            raise ValueError("Invalid API token")
-        elif e.response.status_code == 403:
-            raise ValueError("Demo API key limited to specific tickers")
-        elif e.response.status_code == 429:
+        if e.response.status_code == 429:
             raise ValueError("Rate limit exceeded")
         else:
             raise
+
+    # Check for plain text "Unauthenticated" response
+    if response.text.strip() == "Unauthenticated":
+        raise ValueError("Invalid or expired API token")
 
     except requests.exceptions.RequestException as e:
         raise ConnectionError(f"API request failed: {e}")

@@ -45,7 +45,7 @@ Most exchanges use a format: `BASE_SYMBOL` + `SUFFIX`
 - `BAC-PB.US` - Bank of America Preferred Series B
 - `GOOGL.US` - Alphabet Class A shares
 - `PTT-R.BK` - PTT Public Company Limited NVDR (Thailand)
-- `BRK.B.US` - Berkshire Hathaway Class B shares
+- `BRK-B.US` - Berkshire Hathaway Class B shares
 
 ---
 
@@ -110,14 +110,14 @@ WFC-PL.US  - Wells Fargo Preferred Series L
 - **Class B**: Often held by founders/insiders (supervoting rights)
 - **Class C**: No voting rights (common for public trading)
 
-**Ticker Format**: Period + class letter OR distinct ticker
+**Ticker Format**: Hyphen + class letter OR distinct ticker
 
 **Examples**:
 
-#### Period Format:
+#### Hyphen Format:
 ```
-BRK.A.US   - Berkshire Hathaway Class A (~$500k per share, 1 vote)
-BRK.B.US   - Berkshire Hathaway Class B (~$330 per share, 1/10000 vote)
+BRK-A.US   - Berkshire Hathaway Class A (~$500k per share, 1 vote)
+BRK-B.US   - Berkshire Hathaway Class B (~$330 per share, 1/10000 vote)
 ```
 
 #### Distinct Ticker Format:
@@ -156,14 +156,14 @@ C-J.US     - Citigroup Preferred Series J
 
 ### Units, Rights, Warrants
 
-**Format**: `TICKER.{SUFFIX}`
+**Format**: `TICKER-{SUFFIX}` or `TICKER{SUFFIX}`
 
-| Suffix | Meaning | Example |
-|--------|---------|---------|
-| `.U` | Units (stock + warrant) | `SPCE.U.US` |
-| `.W` | Warrants | `SPCE.W.US` |
-| `.R` | Rights | `XYZ.R.US` |
-| `.WT` | Warrants (alternative) | `ABC.WT.US` |
+| Suffix | Meaning | Example                   |
+|-----|---------|---------------------------|
+| `U` | Units (stock + warrant) | `SPCE-U.US` or `SPCEU.US` |
+| `W` | Warrants | `SPCEW.US` or `SPCE-W.US` |
+| `R` | Rights | `XYZ-R.US`   or `XYZR.US` |
+| `WT` | Warrants (alternative) | `ABC-WT.US`  or `ABCWT.US`          |
 
 **Note**: Not all exchanges use these conventions. Check exchange-specific rules.
 
@@ -670,11 +670,6 @@ https://eodhd.com/api/technical/BRK-A.US?function=sma&period=50&api_token=YOUR_T
 https://eodhd.com/api/intraday/BRK-B.US?interval=5m&api_token=YOUR_TOKEN
 ```
 
-✅ **Options API**:
-```bash
-https://eodhd.com/api/options/BRK-B.US?api_token=YOUR_TOKEN
-```
-
 ✅ **Real-Time / Live API**:
 ```bash
 https://eodhd.com/api/real-time/BF-B.US?api_token=YOUR_TOKEN
@@ -818,13 +813,9 @@ class StockTypeIdentifier:
             result["voting_rights"] = False
             result["ordinary_ticker"] = f"{result['base_ticker']}.{exchange}"
 
-        # Multiple share classes (period format)
-        elif '.A' in ticker or '.B' in ticker or '.C' in ticker:
-            result["characteristics"].append("Multiple Share Classes")
-            parts = ticker.split('.')
-            result["base_ticker"] = parts[0]
-            result["share_class"] = parts[1] if len(parts) > 1 else None
-            result["type"] = "Common Stock (Class Shares)"
+        # Multiple share classes (hyphen format, e.g., BRK-A, BRK-B)
+        # Note: this is handled by the hyphen check above for US stocks.
+        # Class shares use hyphens just like preferred stocks.
 
         # Hong Kong leading zeros
         elif exchange == 'HK' and ticker[0] == '0':
@@ -1113,7 +1104,7 @@ def parse_ticker_suffix(full_ticker):
         "type": "common"  # default
     }
 
-    # Check for hyphen suffix (preferred or NVDR)
+    # Check for hyphen suffix (preferred, NVDR, class shares, etc.)
     if '-' in ticker:
         base, suffix = ticker.split('-', 1)
         result["base_ticker"] = base
@@ -1123,16 +1114,10 @@ def parse_ticker_suffix(full_ticker):
         if exchange == 'BK' and suffix == 'R':
             result["type"] = "nvdr"
         elif exchange == 'US' and (suffix.startswith('P') or len(suffix) <= 2):
-            result["type"] = "preferred"
+            # Could be preferred (BAC-PB) or class shares (BRK-A, BRK-B)
+            result["type"] = "preferred_or_class"
         else:
             result["type"] = "unknown_suffix"
-
-    # Check for period suffix (class shares)
-    elif ticker.count('.') >= 1:  # Additional period beyond exchange
-        parts = ticker.split('.')
-        result["base_ticker"] = parts[0]
-        result["suffix"] = parts[1]
-        result["type"] = "class_shares"
 
     return result
 
@@ -1141,10 +1126,10 @@ print(parse_ticker_suffix("PTT-R.BK"))
 # {'type': 'nvdr', 'base_ticker': 'PTT', 'suffix': 'R'}
 
 print(parse_ticker_suffix("BAC-PB.US"))
-# {'type': 'preferred', 'base_ticker': 'BAC', 'suffix': 'PB'}
+# {'type': 'preferred_or_class', 'base_ticker': 'BAC', 'suffix': 'PB'}
 
-print(parse_ticker_suffix("BRK.B.US"))
-# {'type': 'class_shares', 'base_ticker': 'BRK', 'suffix': 'B'}
+print(parse_ticker_suffix("BRK-B.US"))
+# {'type': 'preferred_or_class', 'base_ticker': 'BRK', 'suffix': 'B'}
 ```
 
 ### 5. Price Comparison Validation

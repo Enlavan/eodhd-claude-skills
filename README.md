@@ -2,6 +2,8 @@
 
 Reusable skills and adapters for using the [EOD Historical Data (EODHD) API](https://eodhd.com/) from Claude- and Codex-style agent workflows.
 
+> **Disclaimer**: This skill set may differ from actual EODHD API endpoints and behavior, both due to possible errors and contradictions in the documentation and because the API is constantly changing and evolving. Furthermore, Claude and the Codex may interpret the information provided incorrectly. Some data, such as update times, is empirical in nature and is provided for guidance only. For any questions, please email supportlevel1@eodhistoricaldata.com
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -10,9 +12,9 @@ Reusable skills and adapters for using the [EOD Historical Data (EODHD) API](htt
 - [Repository Structure](#repository-structure)
 - [Quick Start](#quick-start)
 - [Supported Endpoints](#supported-endpoints)
+- [General Reference Documentation](#general-reference-documentation)
 - [Usage Examples](#usage-examples)
 - [Workflows](#workflows)
-- [Development Status](#development-status)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -51,7 +53,8 @@ export EODHD_API_TOKEN="your_token_here"
 This repository provides a skill adapter that enables AI agents (Claude, Codex, etc.) to interact with the EODHD financial data API. It includes:
 
 - **Skill definitions** with trigger conditions, workflows, and output standards
-- **Endpoint documentation** for 50+ EODHD API endpoints
+- **Endpoint documentation** for 72 EODHD API endpoints
+- **General reference guides** covering 28 topics (exchanges, symbol format, rate limits, fundamentals, etc.)
 - **A lightweight Python client** (stdlib-only, no external dependencies)
 - **Analysis templates** for consistent, auditable output
 - **Adapter guides** for different AI environments
@@ -75,8 +78,8 @@ eodhd-claude-skills/
 │   └── eodhd-api/
 │       ├── SKILL.md              # Primary skill definition
 │       ├── references/
-│       │   ├── endpoints.md      # Endpoint catalog overview
-│       │   ├── endpoints/        # Individual endpoint docs (57 files)
+│       │   ├── general/          # General reference guides (28 files)
+│       │   ├── endpoints/        # Individual endpoint docs (72 files)
 │       │   └── workflows.md      # Common analysis patterns
 │       ├── scripts/
 │       │   └── eodhd_client.py   # Lightweight Python API client
@@ -87,6 +90,7 @@ eodhd-claude-skills/
 │   │   └── eodhd-api.md          # Claude environment adapter
 │   └── codex/
 │       └── eodhd-api.md          # Codex environment adapter
+├── CLAUDE.md                     # Claude Code project context
 └── README.md
 ```
 
@@ -147,22 +151,205 @@ include fundamentals summary, and return a concise analyst report with reproduci
 | `exchange-symbol-list` | List symbols on exchange | Yes (exchange code, e.g., US) |
 | `screener` | Stock screener | No |
 
-### Documented Endpoints (57 total)
+See `skills/eodhd-api/SKILL.md` for the full list of client-supported endpoints.
 
-The `skills/eodhd-api/references/endpoints/` directory contains documentation for:
+### Documented Endpoints (72 total)
 
-| Category | Endpoints |
-|----------|-----------|
-| Market Data | Historical prices, intraday, live data, technical indicators |
-| Fundamentals | Company data, news, insider transactions, sentiment |
-| Options | US options contracts, EOD data, underlyings |
-| Economic | Events, earnings, IPOs, splits, dividends |
-| ESG | Investverte ESG data by company/country/sector |
-| Banking/Bonds | Praams bank data, bond analysis, risk scoring |
-| Exchange/Index | Exchange listings, index components, CBOE data |
-| Advanced Analytics | Illio market insights, performance, risk analysis |
+The `skills/eodhd-api/references/endpoints/` directory contains documentation for each endpoint. See `skills/eodhd-api/references/endpoints/README.md` for the complete index.
 
-See `skills/eodhd-api/references/endpoints/README.md` for the complete index.
+#### Market Data
+
+| Endpoint | File |
+|----------|------|
+| Historical Stock Prices (EOD) | `historical-stock-prices.md` |
+| Intraday Historical Data | `intraday-historical-data.md` |
+| Live Price Data | `live-price-data.md` |
+| US Live Extended Quotes | `us-live-extended-quotes.md` |
+| WebSockets Real-Time Data | `websockets-realtime.md` |
+| Technical Indicators | `technical-indicators.md` |
+| Stock Screener Data | `stock-screener-data.md` |
+| Stocks From Search | `stocks-from-search.md` |
+| Stock Market Logos (PNG) | `stock-market-logos.md` |
+| Stock Market Logos (SVG) | `stock-market-logos-svg.md` |
+| Historical Market Cap | `historical-market-cap.md` |
+| Symbol Change History | `symbol-change-history.md` |
+
+#### Fundamentals & Company Data
+
+| Endpoint | File |
+|----------|------|
+| Fundamentals Data | `fundamentals-data.md` |
+| Bulk Fundamentals | `bulk-fundamentals.md` |
+| Company News | `company-news.md` |
+| Sentiment Data | `sentiment-data.md` |
+| News Word Weights | `news-word-weights.md` |
+| Insider Transactions | `insider-transactions.md` |
+
+#### Calendar & Events
+
+| Endpoint | File |
+|----------|------|
+| Upcoming Earnings | `upcoming-earnings.md` |
+| Earnings Trends | `earnings-trends.md` |
+| Upcoming Dividends | `upcoming-dividends.md` |
+| Upcoming Splits | `upcoming-splits.md` |
+| Upcoming IPOs | `upcoming-ipos.md` |
+| Economic Events | `economic-events.md` |
+
+#### Exchange & Index Data
+
+| Endpoint | File |
+|----------|------|
+| Exchanges List | `exchanges-list.md` |
+| Exchange Details | `exchange-details.md` |
+| Exchange Tickers | `exchange-tickers.md` |
+| Index Components | `index-components.md` |
+| Indices List | `indices-list.md` |
+| CBOE Index Data | `cboe-index-data.md` |
+| CBOE Indices List | `cboe-indices-list.md` |
+
+#### Macro & Treasury
+
+| Endpoint | File |
+|----------|------|
+| Macro Indicator | `macro-indicator.md` |
+| US Treasury Bill Rates | `ust-bill-rates.md` |
+| US Treasury Long-Term Rates | `ust-long-term-rates.md` |
+| US Treasury Yield Rates | `ust-yield-rates.md` |
+| US Treasury Real Yield Rates | `ust-real-yield-rates.md` |
+
+#### User & Account
+
+| Endpoint | File |
+|----------|------|
+| User Details | `user-details.md` |
+
+#### Marketplace: Options
+
+| Endpoint | File |
+|----------|------|
+| US Options EOD | `us-options-eod.md` |
+| US Options Contracts | `us-options-contracts.md` |
+| US Options Underlyings | `us-options-underlyings.md` |
+
+#### Marketplace: Tick Data
+
+| Endpoint | File |
+|----------|------|
+| US Tick Data | `us-tick-data.md` |
+| Marketplace Tick Data | `marketplace-tick-data.md` |
+
+#### Marketplace: TradingHours
+
+| Endpoint | File |
+|----------|------|
+| List All Markets | `tradinghours-list-markets.md` |
+| Lookup Markets | `tradinghours-lookup-markets.md` |
+| Get Market Details | `tradinghours-market-details.md` |
+| Market Status Details | `tradinghours-market-status.md` |
+
+#### Marketplace: Illio Analytics
+
+| Endpoint | File |
+|----------|------|
+| Market Insights — Best/Worst | `illio-market-insights-best-worst.md` |
+| Market Insights — Beta Bands | `illio-market-insights-beta-bands.md` |
+| Market Insights — Largest Volatility | `illio-market-insights-largest-volatility.md` |
+| Market Insights — Performance | `illio-market-insights-performance.md` |
+| Market Insights — Risk Return | `illio-market-insights-risk-return.md` |
+| Market Insights — Volatility | `illio-market-insights-volatility.md` |
+| Performance Insights | `illio-performance-insights.md` |
+| Risk Insights | `illio-risk-insights.md` |
+
+#### Marketplace: Investverte ESG
+
+| Endpoint | File |
+|----------|------|
+| List Companies | `investverte-esg-list-companies.md` |
+| List Countries | `investverte-esg-list-countries.md` |
+| List Sectors | `investverte-esg-list-sectors.md` |
+| View Company | `investverte-esg-view-company.md` |
+| View Country | `investverte-esg-view-country.md` |
+| View Sector | `investverte-esg-view-sector.md` |
+
+#### Marketplace: PRAAMS
+
+| Endpoint | File |
+|----------|------|
+| Bank Balance Sheet (by ISIN) | `praams-bank-balance-sheet-by-isin.md` |
+| Bank Balance Sheet (by Ticker) | `praams-bank-balance-sheet-by-ticker.md` |
+| Bank Income Statement (by ISIN) | `praams-bank-income-statement-by-isin.md` |
+| Bank Income Statement (by Ticker) | `praams-bank-income-statement-by-ticker.md` |
+| Bond Analyze (by ISIN) | `praams-bond-analyze-by-isin.md` |
+| Multi-Factor Bond Report (by ISIN) | `praams-report-bond-by-isin.md` |
+| Multi-Factor Equity Report (by ISIN) | `praams-report-equity-by-isin.md` |
+| Multi-Factor Equity Report (by Ticker) | `praams-report-equity-by-ticker.md` |
+| Risk Scoring (by ISIN) | `praams-risk-scoring-by-isin.md` |
+| Risk Scoring (by Ticker) | `praams-risk-scoring-by-ticker.md` |
+| Smart Investment Screener — Bond | `praams-smart-investment-screener-bond.md` |
+| Smart Investment Screener — Equity | `praams-smart-investment-screener-equity.md` |
+
+## General Reference Documentation
+
+The `skills/eodhd-api/references/general/` directory contains 28 reference guides:
+
+### Essential
+
+| Guide | Description |
+|-------|-------------|
+| `authentication.md` | API tokens, security, protocols, CORS, environment setup |
+| `symbol-format.md` | Ticker format rules, exchange codes, special characters |
+| `exchanges.md` | Supported exchanges (70+), trading hours, coverage |
+| `rate-limits.md` | API quotas, rate limiting, Marketplace limits, optimization |
+| `update-times.md` | Data refresh schedules by data type and exchange |
+
+### Fundamentals
+
+| Guide | Description |
+|-------|-------------|
+| `fundamentals-api.md` | Complete guide to fundamentals, ETFs, funds, indices |
+| `fundamentals-common-stock.md` | Common stock fundamentals structure |
+| `fundamentals-etf.md` | ETF fundamentals and holdings |
+| `fundamentals-etf-metrics.md` | ETF-specific metrics and calculations |
+| `fundamentals-fund.md` | Mutual fund data structure |
+| `fundamentals-crypto-currency.md` | Cryptocurrency and forex fundamentals |
+| `fundamentals-ratios.md` | Financial ratios documentation |
+| `fundamentals-faq.md` | Common fundamentals questions and answers |
+
+### Asset Class Notes
+
+| Guide | Description |
+|-------|-------------|
+| `forex-data-notes.md` | Forex market hours, EOD definition, volume |
+| `crypto-data-notes.md` | Crypto data sources, volume, price discrepancies |
+| `indices-data-notes.md` | Index access, live data, historical components |
+
+### Ticker & Exchange Guides
+
+| Guide | Description |
+|-------|-------------|
+| `stock-types-ticker-suffixes-guide.md` | Ticker suffixes, share classes, preferred shares |
+| `special-exchanges-guide.md` | Special exchange codes (FOREX, CC, GBOND, INDX, etc.) |
+| `primary-tickers-guide.md` | Primary ticker identification for ADRs and dual listings |
+| `delisted-tickers-guide.md` | Working with delisted and historical tickers |
+
+### Data & Calculations
+
+| Guide | Description |
+|-------|-------------|
+| `data-adjustment-guide.md` | Split/dividend adjustments for price data |
+| `financial-ratios-calculation-guide.md` | How financial ratios are calculated |
+| `general-data-faq.md` | ISINs, data formats, adjusted close, error codes, etc. |
+
+### Platform
+
+| Guide | Description |
+|-------|-------------|
+| `pricing-and-plans.md` | Subscription tiers, WebSocket limits, Marketplace |
+| `sdks-and-integrations.md` | Official SDKs, MCP Server, third-party tools |
+| `versioning.md` | API stability guarantees, backwards compatibility |
+| `api-authentication-demo-access.md` | Demo token access and limitations |
+| `glossary.md` | Financial, technical, and EODHD-specific terms |
 
 ## Usage Examples
 
@@ -206,25 +393,6 @@ The skill supports four primary analysis patterns (see `skills/eodhd-api/referen
 2. **Cross-sectional Screener**: Filter universe, rank by criteria, present shortlist
 3. **Event Window Analysis**: Intraday bars around specific events (earnings, announcements)
 4. **Macro Overlay**: Align instrument data with macro indicators for co-movement analysis
-
-## Development Status
-
-### Current Release (v0.0.3)
-
-- Historical/end-of-day data retrieval
-- Intraday data retrieval
-- Fundamentals/exchange/screener access
-- Consistent, auditable output format
-- 57 endpoint documentation stubs
-
-### Roadmap
-
-- [ ] Complete documentation for all endpoint stubs
-- [ ] Add more endpoints to Python client
-- [ ] Schema validation for API responses
-- [ ] Factor libraries for common calculations
-- [ ] Caching and retry strategies
-- [ ] Notebook/report generation
 
 ## Contributing
 

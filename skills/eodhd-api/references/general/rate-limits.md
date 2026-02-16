@@ -13,7 +13,7 @@ The daily limit is set by default to **100,000 API calls** per user for every pa
 ### Daily Limit Reset
 
 - **Subscription plans**: The daily limit resets at **midnight GMT**. However, the counter itself is not reset automatically — it is refreshed on the **first API request made after midnight GMT**. Before that, the counter displays the number of API calls from the last active day.
-- **Marketplace products**: The daily limit resets **24 hours after the first request**. The first request creates a 24-hour window during which the daily call limit applies.
+- **Marketplace products**: See the [Marketplace Product Limits](#marketplace-product-limits) section below for details on how Marketplace limits and reset times work.
 
 ### Daily Limit Increase
 
@@ -39,8 +39,6 @@ Daily limit increases are **not currently available** for marketplace products. 
 | Sentiment API | 5 + (5 x tickers) | Sentiment for 2 tickers = 15 calls |
 | News Word Weights API | 5 + (5 x tickers) | Word weights for 3 tickers = 20 calls |
 | Fundamental API | 10 calls | Fundamentals for 1 symbol = 10 calls |
-| Options API | 10 calls | Options chain for 1 symbol = 10 calls |
-| Bond Fundamentals API | 10 calls | Bond data for 1 symbol = 10 calls |
 | Marketplace products | 10 calls (unless otherwise stated) | Per product documentation |
 | Bulk API (entire exchange) | 100 calls | Bulk EOD for entire exchange = 100 calls |
 | Bulk API (with `symbols` parameter) | 100 + N calls | Bulk with 3 symbols = 103 calls |
@@ -79,7 +77,7 @@ The following endpoints consume **1 API call** per request:
 - Stock screener (`/screener`)
 
 **Account**:
-- User details (`/user`)
+- User details (`/internal-user`)
 
 **US Treasury**:
 - Bill rates (`/ust/bill-rates`)
@@ -113,8 +111,6 @@ The following endpoints consume **5 API calls** per request:
 The following endpoints consume **10 API calls** per request:
 
 - Company fundamentals (`/fundamentals/{TICKER}`)
-- Options chains (`/options/{TICKER}`)
-- Bond fundamentals
 - Marketplace products (unless otherwise stated in product documentation)
 
 ### 100-Call Endpoints (Bulk)
@@ -125,6 +121,68 @@ Bulk API endpoints consume **100 API calls** for the entire exchange:
 - Bulk fundamentals (`/bulk-fundamentals/{EXCHANGE}`) — 100 calls
 
 When the `symbols` parameter is used, the cost is **100 + N API calls**, where N is the number of symbols. For example, requesting bulk fundamentals for 3 symbols costs 103 API calls.
+
+## Marketplace Product Limits
+
+Marketplace products (endpoints with `/mp/` in the path) have their own **separate** rate limits, independent from the main EODHD subscription plan.
+
+### Common Limits for All Marketplace Products
+
+Every Marketplace product shares the same limit structure:
+
+| Limit | Value |
+|-------|-------|
+| API calls per 24 hours | 100,000 |
+| API requests per minute | 1,000 |
+| API calls per request | 10 (1 request = 10 API calls) |
+
+### Separate Limit Pools
+
+Each Marketplace subscription has its **own separate** API call limit pool of 100,000 calls per 24 hours. These are also separate from the main EODHD subscription plan limit. For example, if you subscribe to both the US Stock Options Data API and the Stock Market Logos API, each has its own 100,000-call daily limit independently.
+
+### Marketplace Reset Time
+
+All Marketplace subscriptions for a given user share a **single reset time**. This reset time is determined by when the user first made **any** Marketplace API request — all Marketplace subscriptions then reset at that same time every 24 hours.
+
+The reset time can be found in the Internal User API (`/api/internal-user`) response under the `availableMarketplaceDataFeeds.timeToReset` field:
+
+```json
+{
+  "availableMarketplaceDataFeeds": {
+    "dailyRateLimit": 100000,
+    "requestsSpent": 80,
+    "timeToReset": "19:01 GMT+0000",
+    "subscriptions": ["US Stock Options Data API"]
+  }
+}
+```
+
+- `timeToReset` — The exact time (in GMT) when all Marketplace subscription call limits reset. This is the same time for all Marketplace products on the account.
+- `requestsSpent` — Number of Marketplace API calls used in the current period.
+- `subscriptions` — List of active Marketplace subscription names.
+
+### Marketplace Products List
+
+The following Marketplace products are available (all use `/mp/` in the API path):
+
+| Product | Endpoints | Provider |
+|---------|-----------|----------|
+| **US Stock Options Data API** | `/mp/unicornbay/options/contracts`, `/mp/unicornbay/options/eod`, `/mp/unicornbay/options/underlyings` | Unicorn Bay |
+| **Tick Data API: US Stock Market** | `/mp/unicornbay/tickdata/ticks` | Unicorn Bay |
+| **Indices Historical Constituents Data API** | `/mp/unicornbay/spglobal/list`, `/mp/unicornbay/spglobal/comp/{symbol}` | Unicorn Bay / S&P Global |
+| **Investverte ESG API** | `/mp/investverte/esg/list-companies`, `/mp/investverte/esg/list-countries`, `/mp/investverte/esg/list-sectors`, `/mp/investverte/esg/view-company`, `/mp/investverte/esg/view-country`, `/mp/investverte/esg/view-sector` | Investverte |
+| **Praams Equity Risk & Return Scoring API** | `/mp/praams/scoring/ticker/{ticker}`, `/mp/praams/scoring/isin/{isin}`, `/mp/praams/bond/{isin}` | PRAAMS |
+| **Praams Bank Financials API** | `/mp/praams/bank/income-statement/ticker/{ticker}`, `/mp/praams/bank/income-statement/isin/{isin}`, `/mp/praams/bank/balance-sheet/ticker/{ticker}`, `/mp/praams/bank/balance-sheet/isin/{isin}` | PRAAMS |
+| **Praams Smart Investment Screener API** | `/mp/praams/screener/equity`, `/mp/praams/screener/bond` | PRAAMS |
+| **Multi-Factor Investment Reports API** | `/mp/praams/reports/equity/ticker/{ticker}`, `/mp/praams/reports/equity/isin/{isin}`, `/mp/praams/reports/bond/{isin}` | PRAAMS |
+| **illio Performance Insights** | `/mp/illio/performance-insights` | illio |
+| **illio Risk Insights** | `/mp/illio/risk-insights` | illio |
+| **illio Market Insights** | `/mp/illio/market-insights/performance`, `/mp/illio/market-insights/best-worst`, `/mp/illio/market-insights/volatility`, `/mp/illio/market-insights/risk-return`, `/mp/illio/market-insights/largest-volatility`, `/mp/illio/market-insights/beta-bands` | illio |
+| **Stock Market Logos API** | `/logo/{symbol}` | Unicorn Data Services |
+| **Stock Market Logos API (SVG)** | `/logo-svg/{symbol}` | Unicorn Data Services |
+| **Market Status API (TradingHours)** | `/mp/tradinghours/markets`, `/mp/tradinghours/markets/lookup`, `/mp/tradinghours/markets/details`, `/mp/tradinghours/markets/status` | TradingHours |
+
+> **Note**: The Stock Market Logos endpoints (`/logo/` and `/logo-svg/`) do not use the `/mp/` path prefix but are still Marketplace products with the same separate rate limits.
 
 ## Minute Limit (Requests)
 
@@ -162,29 +220,42 @@ Key details:
 Check your current usage via the API:
 
 ```bash
-curl "https://eodhd.com/api/user?api_token=YOUR_TOKEN"
+curl "https://eodhd.com/api/internal-user?api_token=YOUR_TOKEN"
 ```
 
-**Response**:
+**Response** (with Marketplace subscriptions):
 ```json
 {
   "name": "John Doe",
-  "email": "john@example.com",
-  "subscriptionType": "commercial",
-  "paymentMethod": "Stripe",
-  "apiRequests": 5432,
-  "apiRequestsDate": "2026-02-15",
+  "email": "john.doe@gmx.de",
+  "subscriptionType": "monthly",
+  "paymentMethod": "PayPal",
+  "apiRequests": 5301,
+  "apiRequestsDate": "2026-01-25",
   "dailyRateLimit": 100000,
-  "extraLimit": 50000,
-  "subscriptionMode": "paid"
+  "extraLimit": 500,
+  "subscriptionMode": "paid",
+  "availableDataFeeds": ["EOD Historical Data", "News API", "..."],
+  "availableMarketplaceDataFeeds": {
+    "dailyRateLimit": 100000,
+    "requestsSpent": 80,
+    "timeToReset": "19:01 GMT+0000",
+    "subscriptions": ["US Stock Options Data API"]
+  }
 }
 ```
 
-Key fields:
+**Main subscription fields**:
 - `apiRequests` — Number of API calls on the latest day of API usage (resets at midnight GMT, but shows the previous day's count until a new request is made after reset)
 - `apiRequestsDate` — Date of the latest API request
-- `dailyRateLimit` — Maximum number of API calls allowed per day
+- `dailyRateLimit` — Maximum number of API calls allowed per day for the main subscription
 - `extraLimit` — Remaining amount of additionally purchased API calls
+
+**Marketplace fields** (in `availableMarketplaceDataFeeds`):
+- `dailyRateLimit` — Maximum daily API calls per Marketplace subscription (100,000)
+- `requestsSpent` — Marketplace API calls used in the current 24-hour period
+- `timeToReset` — Time when all Marketplace limits reset (e.g., `19:01 GMT+0000`)
+- `subscriptions` — List of active Marketplace subscription names
 
 ### Dashboard
 
@@ -200,11 +271,16 @@ Monitor usage through your account dashboard at https://eodhd.com/cp/api:
 
 **HTTP Status**: 402 Payment Required
 
-**Solutions**:
+**Solutions** (main subscription):
 1. Wait until midnight GMT (daily reset)
 2. Increase your daily limit via the dashboard
 3. Purchase Extra API Calls as a buffer
 4. Optimize requests to use fewer calls
+
+**Solutions** (Marketplace products):
+1. Wait until the `timeToReset` time shown in `/api/internal-user` response
+2. Optimize requests to use fewer calls
+3. Contact support for specific Marketplace limit increase cases
 
 ### Exceeded Minute Limit
 
@@ -219,11 +295,11 @@ Monitor usage through your account dashboard at https://eodhd.com/cp/api:
 
 ### Symbols Per Request
 
-| Request Type | Recommended | Maximum | Notes |
-|-------------|-------------|---------|-------|
-| **Bulk download** | Entire exchange | Entire exchange | 100 calls. US = 45,000+ tickers |
+| Request Type                            | Recommended | Maximum | Notes |
+|-----------------------------------------|-------------|---------|-------|
+| **Bulk end of day download**            | Entire exchange | Entire exchange | 100 calls. US = 45,000+ tickers |
 | **Standard request with `s` parameter** | 15-20 symbols | ~100 symbols | URL becomes extremely long at high counts |
-| **Batch real-time** | 15-20 symbols | ~100 symbols | Same URL length constraint |
+| **Batch real-time**                     | 15-20 symbols | ~100 symbols | Same URL length constraint |
 
 ### No Push API
 
@@ -254,7 +330,7 @@ See `pricing-and-plans.md` for WebSocket tier details.
 
 ### 1. Use Bulk Endpoints
 
-Instead of fetching EOD data for 100 symbols individually:
+Instead of fetching EOD data for 100 symbols individually to get last data:
 
 **Inefficient** (100 calls):
 ```bash
@@ -343,7 +419,7 @@ get_eod("AAPL.US", from_date="2023-01-01", to_date="2024-01-01")
 
 ### 6. Minimize Expensive Endpoint Usage
 
-**10-call endpoints** (Fundamentals, Options): Cache aggressively, request only when needed.
+**10-call endpoints** (Fundamentals): Cache aggressively, request only when needed.
 
 **5-call endpoints** (News, Intraday, Technical): Batch tickers in one call where possible.
 
@@ -502,9 +578,10 @@ def send_alert(message):
 
 def check_quota(token):
     """Check quota and alert if necessary."""
-    response = requests.get(f"https://eodhd.com/api/user?api_token={token}")
+    response = requests.get(f"https://eodhd.com/api/internal-user?api_token={token}")
     data = response.json()
 
+    # Main subscription quota
     used = data.get('apiRequests', 0)
     limit = data.get('dailyRateLimit', 100000)
     extra = data.get('extraLimit', 0)
@@ -514,20 +591,30 @@ def check_quota(token):
         send_alert(f"{pct_used:.1f}% of daily API limit used ({used}/{limit})!")
         if extra > 0:
             print(f"Extra API calls available as buffer: {extra}")
+
+    # Marketplace quota
+    mp = data.get('availableMarketplaceDataFeeds', [])
+    if isinstance(mp, dict):
+        mp_used = mp.get('requestsSpent', 0)
+        mp_limit = mp.get('dailyRateLimit', 100000)
+        mp_pct = (mp_used / mp_limit) * 100
+        if mp_pct > 90:
+            send_alert(f"Marketplace: {mp_pct:.1f}% used ({mp_used}/{mp_limit})! Resets at {mp['timeToReset']}")
 ```
 
 ## Best Practices
 
 1. **Understand the cost**: Know how many API calls each endpoint consumes before building workflows
-2. **Monitor usage regularly**: Check dashboard at https://eodhd.com/cp/api or use `/user` endpoint
+2. **Monitor usage regularly**: Check dashboard at https://eodhd.com/cp/api or use `/internal-user` endpoint
 3. **Implement caching**: Reduce redundant API calls, especially for 10-call endpoints
 4. **Use bulk endpoints**: 100 calls for an entire exchange vs 1 call per symbol individually
 5. **Rate limit your requests**: Stay within 1,000 requests per minute
 6. **Handle 429 errors gracefully**: Implement retry logic with exponential backoff
 7. **Request only what you need**: Avoid over-fetching data ranges
-8. **Cache expensive endpoints**: Fundamentals (10 calls), Options (10 calls), News/Sentiment (5 + 5*N)
+8. **Cache expensive endpoints**: Fundamentals (10 calls), News/Sentiment (5 + 5*N)
 9. **Spread requests evenly**: Don't burst all requests at once within a minute
 10. **Consider Extra API Calls**: Purchase as a buffer if you occasionally exceed daily limits
+11. **Monitor Marketplace quotas separately**: Each Marketplace subscription has its own 100,000-call limit. Check `availableMarketplaceDataFeeds.requestsSpent` in the `/internal-user` response.
 
 ## Upgrading & Increasing Limits
 
@@ -571,6 +658,6 @@ See `sdks-and-integrations.md` for full SDK details.
 
 - **Authentication**: See `authentication.md`
 - **Pricing & Plans**: See `pricing-and-plans.md` for subscription tier details
-- **User endpoint**: `/api/user` for quota checking — see `../endpoints/user-details.md`
+- **User endpoint**: `/api/internal-user` for quota checking (main + Marketplace) — see `../endpoints/user-details.md`
 - **Account dashboard**: https://eodhd.com/cp/api
 - **Support**: support@eodhistoricaldata.com

@@ -35,9 +35,6 @@ Examples:
   # Macro indicators
   python eodhd_client.py --endpoint macro-indicator --symbol USA --indicator inflation_consumer_prices_annual
 
-  # Options data
-  python eodhd_client.py --endpoint options --symbol AAPL.US
-
   # Exchanges list
   python eodhd_client.py --endpoint exchanges-list
 
@@ -180,8 +177,6 @@ def build_path(endpoint: str, symbol: str | None, function: str | None = None) -
         if not function:
             raise ClientError("--function is required for endpoint=technical (e.g., sma, ema, rsi)")
         return f"/technical/{symbol}"
-    if endpoint == "options":
-        return f"/options/{symbol}"
     if endpoint == "macro-indicator":
         return f"/macro-indicator/{symbol}"
 
@@ -219,8 +214,6 @@ SUPPORTED_ENDPOINTS = [
     "splits",
     # Technical analysis
     "technical",
-    # Options
-    "options",
     # Macro & economic
     "macro-indicator",
     "economic-events",
@@ -259,7 +252,6 @@ Supported endpoints:
   Fundamentals:   fundamentals, bulk-fundamentals, news, sentiment, news-word-weights, insider-transactions
   Corporate:      dividends, splits
   Technical:      technical (requires --function)
-  Options:        options
   Macro:          macro-indicator, economic-events
   Calendar:       calendar/earnings, calendar/trends, calendar/ipos, calendar/splits, calendar/dividends
   Exchange:       exchange-symbol-list, exchanges-list, exchanges-details
