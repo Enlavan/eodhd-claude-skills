@@ -149,7 +149,7 @@ After installing the skill, Claude Code won't always use it automatically — yo
 Start your message with a line like:
 
 ```
-Use available skills you have access to whenever possible.
+Use available skills (especially from the marketplace) you have access to whenever possible.
 Get me AAPL.US daily prices for the last 30 days and summarize the trend.
 ```
 

@@ -5,15 +5,18 @@
 Use EODHD market data APIs to fetch, normalize, and summarize financial data including:
 - Prices (historical, intraday, real-time)
 - Company fundamentals and financial statements
-- Options data with Greeks (via Marketplace API)
+- Options data with Greeks (from EODHD Marketplace)
 - Technical indicators
 - News and sentiment
 - Macro-economic indicators
 - Corporate events (dividends, splits, earnings, IPOs)
 - US Treasury interest rates (bill rates, long-term rates, yield curves, real yield curves)
-- ESG / environmental scores
-- Risk analytics and multi-factor reports
-- Bank financials and bond analysis
+- ESG / environmental scores (from EODHD Marketplace — Investverte)
+- Risk analytics and multi-factor reports (from EODHD Marketplace — PRAAMS)
+- Bank financials and bond analysis (from EODHD Marketplace — PRAAMS)
+- Investment analytics: performance, volatility, risk/return (from EODHD Marketplace — Illio)
+- Tick-level market data (from EODHD Marketplace)
+- Trading hours and market status (from EODHD Marketplace — TradingHours)
 
 Supports equities, ETFs, indices, forex, crypto, and bonds across 70+ exchanges worldwide.
 
@@ -26,7 +29,7 @@ Use this skill whenever the user's task involves **financial data, markets, inve
 - Intraday price bars (1m, 5m, 1h intervals)
 - Real-time or delayed quotes, extended US quotes with bid/ask
 - Company fundamentals, financials, valuation metrics, or financial ratios
-- Options chains, Greeks, or options analytics
+- Options chains, Greeks, or options analytics (from EODHD Marketplace)
 - Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic, ADX, ATR, etc.)
 - Company or market news, sentiment scores, trending topics
 - Stock screening / filtering by fundamental or technical criteria
@@ -34,15 +37,15 @@ Use this skill whenever the user's task involves **financial data, markets, inve
 - Macro-economic indicators (GDP, inflation, unemployment, interest rates, trade balance, etc.)
 - Corporate calendar events (earnings, dividends, splits, IPOs)
 - Insider trading activity (executive purchases, sales, SEC filings)
-- ESG scores and environmental data (company, sector, country level)
-- Risk scoring, volatility analytics, beta, risk/return profiles
-- Bank balance sheets, income statements, bond analysis
+- ESG scores and environmental data — company, sector, country level (from EODHD Marketplace — Investverte)
+- Risk scoring, volatility analytics, beta, risk/return profiles (from EODHD Marketplace — PRAAMS, Illio)
+- Bank balance sheets, income statements, bond analysis (from EODHD Marketplace — PRAAMS)
 - US Treasury rates (bill rates, long-term rates, yield curves, real yield curves)
 - Historical market capitalisation
 - Index composition and components
 - Bulk data exports for an entire exchange
 - Symbol change history and delisted tickers
-- Trading hours, market status, and market holidays
+- Trading hours, market status, and market holidays (from EODHD Marketplace — TradingHours)
 - Company logos and branding assets
 
 ### Building financial tools and applications
@@ -196,7 +199,7 @@ See `references/workflows.md` for detailed recipes.
 3. **Event study**: Intraday bars around earnings/announcements
 4. **Macro context**: Stock performance vs. economic indicators
 5. **Technical analysis**: Price data + indicators (SMA, RSI, MACD)
-6. **Options analysis**: Options chains + Greeks via Marketplace endpoints
+6. **Options analysis**: Options chains + Greeks (from EODHD Marketplace)
 
 ### Building financial tools
 7. **Stock screener / scanner**: Use `screener` endpoint with filters, then enrich top results with `fundamentals` and `eod` for display
@@ -209,8 +212,8 @@ See `references/workflows.md` for detailed recipes.
 
 ### Research and advice workflows
 14. **Investment thesis research**: `fundamentals` (valuation, growth) + `news` (catalysts) + `insider-transactions` (conviction) + `sentiment` (market mood)
-15. **Risk assessment**: `eod` (returns series) + `technical` (ATR, Bollinger) + Praams risk-scoring endpoints + macro overlays
-16. **ESG screening**: Investverte ESG endpoints (list/view companies, sectors, countries) + `fundamentals` for financial context
+15. **Risk assessment**: `eod` (returns series) + `technical` (ATR, Bollinger) + PRAAMS risk-scoring endpoints (from EODHD Marketplace) + macro overlays
+16. **ESG screening**: Investverte ESG endpoints (from EODHD Marketplace) + `fundamentals` for financial context
 17. **Fixed-income analysis**: UST rate endpoints (bill, long-term, yield, real-yield) + `macro-indicator` for inflation/GDP context
 18. **Currency analysis**: Forex pairs via `eod` (e.g., `EURUSD.FOREX`) + `macro-indicator` for interest-rate differentials
 19. **IPO pipeline review**: `calendar/ipos` for upcoming offerings + `eod` + `fundamentals` for comparable public companies
