@@ -92,7 +92,7 @@ Activate this skill when the user is performing or asking for:
 
 ## Required inputs
 
-- `EODHD_API_TOKEN` — environment variable containing your API key
+- **API key** — the `EODHD_API_TOKEN` environment variable. If it is not set, **ask the user to provide their API key interactively**. Once received, export it in the current shell session (`export EODHD_API_TOKEN="<key>"`). The user can obtain a free or paid key at https://eodhd.com/. If the user is concerned the key may have been compromised, they can provide a new key at any time and the session variable will be updated.
 - Instrument identifier in EODHD format: `{TICKER}.{EXCHANGE}` (e.g., `AAPL.US`, `BMW.XETRA`)
 - Date range (`--from-date`, `--to-date`) for time-series requests
 - Endpoint-specific parameters (e.g., `--function` for technical indicators)
@@ -100,6 +100,7 @@ Activate this skill when the user is performing or asking for:
 ## Workflow
 
 1. **Clarify the request**
+   - Check that `EODHD_API_TOKEN` is set; if not, ask the user for their key and export it
    - Identify objective: price analysis, screening, fundamentals, event study, etc.
    - Confirm symbol(s), date range, and specific metrics needed
    - Determine output format (tables, charts, summary)
@@ -183,6 +184,7 @@ Activate this skill when the user is performing or asking for:
 - **Respect rate limits**: avoid unnecessary duplicate requests
 - **Handle errors gracefully**: provide actionable error messages
 - **Warn on large requests**: ask for confirmation before broad multi-exchange pulls
+- **Protect the API key**: never echo or print the token in plain text to the user. Always redact it in example commands (`EODHD_API_TOKEN=***`). If the user suspects their key is compromised, prompt them to supply a new one and re-export it
 
 ## Common patterns
 
