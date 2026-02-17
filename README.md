@@ -11,6 +11,7 @@ Reusable skills and adapters for using the [EOD Historical Data (EODHD) API](htt
 - [Prerequisites](#prerequisites)
 - [Repository Structure](#repository-structure)
 - [Quick Start](#quick-start)
+- [Usage Tips](#usage-tips)
 - [Supported Endpoints](#supported-endpoints)
 - [General Reference Documentation](#general-reference-documentation)
 - [Usage Examples](#usage-examples)
@@ -138,6 +139,47 @@ python skills/eodhd-api/scripts/eodhd_client.py \
 Use the `eodhd-api` skill. Pull daily prices for NVDA.US from 2025-01-01 to 2025-01-31,
 include fundamentals summary, and return a concise analyst report with reproducible calls.
 ```
+
+## Usage Tips
+
+After installing the skill, Claude Code won't always use it automatically — you may need to nudge it. Here are a few ways to make sure the skill gets picked up:
+
+### Prompt prefix
+
+Start your message with a line like:
+
+```
+Use available skills you have access to whenever possible.
+Get me AAPL.US daily prices for the last 30 days and summarize the trend.
+```
+
+Or reference the skill explicitly:
+
+```
+Use the eodhd-api skill. Show me fundamentals for MSFT.US.
+```
+
+### Add a project-level instruction
+
+Create or edit a `CLAUDE.md` in your project root and add:
+
+```markdown
+Always use available skills (especially `eodhd-api`) when handling financial data requests.
+```
+
+Claude Code reads `CLAUDE.md` at the start of every session, so this acts as a persistent hint.
+
+### Add a global instruction
+
+To apply the hint across all projects, add the following to your `~/.claude/CLAUDE.md`:
+
+```markdown
+Use available skills whenever they match the task at hand.
+```
+
+### Why is this needed?
+
+Claude Code currently treats installed skills as optional context. It will use them when it recognizes a strong match, but for broad or ambiguous requests it may fall back to general knowledge. An explicit mention — either in the prompt or in `CLAUDE.md` — makes the match unambiguous.
 
 ## Supported Endpoints
 
