@@ -11,26 +11,84 @@ Use EODHD market data APIs to fetch, normalize, and summarize financial data inc
 - Macro-economic indicators
 - Corporate events (dividends, splits, earnings, IPOs)
 - US Treasury interest rates (bill rates, long-term rates, yield curves, real yield curves)
+- ESG / environmental scores
+- Risk analytics and multi-factor reports
+- Bank financials and bond analysis
 
 Supports equities, ETFs, indices, forex, crypto, and bonds across 70+ exchanges worldwide.
 
 ## Trigger
 
-Use this skill when the user asks for any of the following:
-- End-of-day or historical stock/ETF/index prices
+Use this skill whenever the user's task involves **financial data, markets, investing, or building financial tools**. This includes — but is not limited to — the categories below.
+
+### Direct data requests
+- End-of-day or historical stock/ETF/index/forex/crypto prices
 - Intraday price bars (1m, 5m, 1h intervals)
-- Real-time quotes (delayed 15-20 minutes) or extended US stock quotes with bid/ask
-- Company fundamentals, financials, or valuation metrics
-- Options chains, Greeks, or options analytics (via Marketplace endpoints)
-- Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, etc.)
-- Company news or market sentiment
-- Stock screening by fundamental/technical criteria
-- Exchange listings or market metadata
-- Macro-economic indicators (GDP, inflation, unemployment)
+- Real-time or delayed quotes, extended US quotes with bid/ask
+- Company fundamentals, financials, valuation metrics, or financial ratios
+- Options chains, Greeks, or options analytics
+- Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic, ADX, ATR, etc.)
+- Company or market news, sentiment scores, trending topics
+- Stock screening / filtering by fundamental or technical criteria
+- Exchange listings, ticker search, or market metadata
+- Macro-economic indicators (GDP, inflation, unemployment, interest rates, trade balance, etc.)
 - Corporate calendar events (earnings, dividends, splits, IPOs)
-- Insider trading activity (executive purchases, sales)
-- Bulk data exports for an exchange
-- US Treasury interest rates, bill rates, yield curves, or real yield curves
+- Insider trading activity (executive purchases, sales, SEC filings)
+- ESG scores and environmental data (company, sector, country level)
+- Risk scoring, volatility analytics, beta, risk/return profiles
+- Bank balance sheets, income statements, bond analysis
+- US Treasury rates (bill rates, long-term rates, yield curves, real yield curves)
+- Historical market capitalisation
+- Index composition and components
+- Bulk data exports for an entire exchange
+- Symbol change history and delisted tickers
+- Trading hours, market status, and market holidays
+- Company logos and branding assets
+
+### Building financial tools and applications
+Activate this skill when the user is **programming or designing** any of:
+- **Stock screeners / scanners** — filtering stocks by P/E, market cap, sector, growth, dividends, etc.
+- **Portfolio trackers** — tracking holdings, calculating P&L, showing allocation
+- **Investment dashboards / panels** — visualising market data, watchlists, sector heatmaps
+- **Trading systems / bots** — algorithmic or rule-based strategies that need price feeds
+- **Backtesting engines** — testing strategies against historical price and volume data
+- **Price alert / notification systems** — monitoring price levels, volume spikes, or indicator crossovers
+- **Dividend trackers / income planners** — modelling dividend income from a portfolio
+- **Earnings calendars / event trackers** — upcoming earnings, IPOs, splits, economic releases
+- **Financial data pipelines / ETL** — ingesting market data into databases, data warehouses, or analytics platforms
+- **Market data APIs or microservices** — wrapping EODHD data for downstream consumers
+- **Charting / technical analysis tools** — rendering candlestick charts, overlaying indicators
+- **Options analysis tools** — payoff diagrams, implied volatility surfaces, Greeks dashboards
+- **Risk management tools** — VaR calculators, portfolio risk decomposition, drawdown analysis
+- **Sector / industry analysis tools** — comparing metrics across sectors or industries
+- **Financial reporting generators** — producing PDF / HTML reports with market data
+- **Watchlist applications** — letting users curate and monitor symbol lists
+- **Market data widgets or embeds** — price tickers, mini-charts, quote cards for websites
+- **Robo-advisor prototypes** — automated portfolio construction using fundamental and technical data
+- **Tax-loss harvesting helpers** — identifying lots to sell, calculating wash-sale windows
+- **Crypto portfolio tools** — tracking crypto alongside equities, forex, and bonds
+
+### Financial analysis, research, and advice
+Activate this skill when the user is performing or asking for:
+- **Fundamental analysis** — valuation (DCF, comparables), financial-statement review, ratio analysis
+- **Technical analysis** — chart patterns, indicator interpretation, support/resistance, trend analysis
+- **Quantitative / statistical analysis** — correlation, regression, factor models, Monte Carlo simulation using market data
+- **Risk assessment** — portfolio volatility, beta, Sharpe ratio, maximum drawdown, Value at Risk
+- **Peer / competitive comparison** — comparing financial metrics across a group of companies
+- **Sector or industry research** — analysing sector performance, rotation, relative strength
+- **Macro-economic research** — linking GDP, inflation, or interest-rate data to market performance
+- **Event studies** — measuring price impact around earnings, M&A announcements, policy changes
+- **Insider-activity analysis** — tracking executive buying/selling as a signal
+- **ESG / sustainability research** — screening by environmental or governance scores
+- **Dividend analysis** — yield, payout ratio, growth rate, sustainability
+- **Earnings quality analysis** — trends, surprises, revision momentum
+- **IPO research** — upcoming offerings, sector trends, pricing
+- **Bond and fixed-income analysis** — yield curves, duration, credit spread trends
+- **Currency / forex analysis** — exchange-rate trends, carry-trade research
+- **Investment advice or recommendations** — when the user asks "what should I invest in?", "is X a good buy?", or similar questions that benefit from real market data
+- **Portfolio allocation or rebalancing** — constructing or adjusting a portfolio using current and historical data
+- **Retirement or financial planning** — modelling scenarios that reference market returns, inflation, interest rates
+- **Academic or educational projects** — coursework, papers, or tutorials that need real market data
 
 ## Required inputs
 
@@ -128,14 +186,32 @@ Use this skill when the user asks for any of the following:
 
 ## Common patterns
 
-See `references/workflows.md` for detailed recipes:
+See `references/workflows.md` for detailed recipes.
 
-1. **Single-ticker deep dive**: EOD + fundamentals + news
+### Core analysis workflows
+1. **Single-ticker deep dive**: EOD + fundamentals + news + insider activity
 2. **Peer comparison**: Screener + fundamentals for multiple symbols
 3. **Event study**: Intraday bars around earnings/announcements
 4. **Macro context**: Stock performance vs. economic indicators
 5. **Technical analysis**: Price data + indicators (SMA, RSI, MACD)
 6. **Options analysis**: Options chains + Greeks via Marketplace endpoints
+
+### Building financial tools
+7. **Stock screener / scanner**: Use `screener` endpoint with filters, then enrich top results with `fundamentals` and `eod` for display
+8. **Portfolio dashboard**: Combine `real-time` (or `us-quote-delayed`) for live prices, `fundamentals` for holdings data, `eod` for historical P&L charts
+9. **Dividend income tracker**: Use `calendar/dividends` + `fundamentals` (dividend yield, payout ratio) + `eod` for ex-date price context
+10. **Earnings calendar app**: Use `calendar/earnings` + `calendar/trends` + `intraday` for pre/post-earnings price movement
+11. **Backtesting engine data feed**: Bulk-fetch via `eod` or `eod-bulk-last-day`, use `technical` for indicator overlays, `splits` and `dividends` for adjustment
+12. **Watchlist with alerts**: Use `real-time` or `us-quote-delayed` for price monitoring, `technical` for indicator-based triggers
+13. **Market heatmap / sector view**: Use `screener` by sector, `eod-bulk-last-day` for daily moves, `index-components` for index breakdown
+
+### Research and advice workflows
+14. **Investment thesis research**: `fundamentals` (valuation, growth) + `news` (catalysts) + `insider-transactions` (conviction) + `sentiment` (market mood)
+15. **Risk assessment**: `eod` (returns series) + `technical` (ATR, Bollinger) + Praams risk-scoring endpoints + macro overlays
+16. **ESG screening**: Investverte ESG endpoints (list/view companies, sectors, countries) + `fundamentals` for financial context
+17. **Fixed-income analysis**: UST rate endpoints (bill, long-term, yield, real-yield) + `macro-indicator` for inflation/GDP context
+18. **Currency analysis**: Forex pairs via `eod` (e.g., `EURUSD.FOREX`) + `macro-indicator` for interest-rate differentials
+19. **IPO pipeline review**: `calendar/ipos` for upcoming offerings + `eod` + `fundamentals` for comparable public companies
 
 ## Example commands
 
