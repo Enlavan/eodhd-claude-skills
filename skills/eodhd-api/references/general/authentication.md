@@ -176,7 +176,7 @@ data <- fromJSON(content(response, "text"))
 
 ## Demo Token
 
-EODHD provides a demo token for testing:
+EODHD provides a `demo` API key for free testing without registration. For a comprehensive guide see [API Authentication & Demo Access Guide](api-authentication-demo-access.md) and the [official EODHD API documentation](https://eodhd.com/financial-apis/).
 
 **Demo Token**: `demo`
 
@@ -185,16 +185,30 @@ EODHD provides a demo token for testing:
 curl "https://eodhd.com/api/eod/AAPL.US?api_token=demo&fmt=json"
 ```
 
+**Supported Demo Tickers** (work across all relevant main REST API endpoints):
+
+| Asset Class | Ticker(s) |
+|-------------|-----------|
+| US Stocks | `AAPL.US`, `MSFT.US`, `TSLA.US` |
+| ETF | `VTI.US` |
+| Mutual Fund | `SWPPX.US` |
+| Forex | `EURUSD.FOREX` |
+| Cryptocurrency | `BTC-USD.CC` |
+
 **Limitations**:
-- Restricted to specific symbols (AAPL.US, MSFT.US, etc.)
-- Limited to recent data only
-- Rate-limited (low request quota)
-- 15-20 minute delayed data
+- Restricted to the 7 demo tickers above — other symbols return plain-text `Unauthenticated`
+- Rate-limited (lower request quota than production keys)
 - Not suitable for production use
+- **WebSockets**: use a separate demo symbol set — `AAPL`, `MSFT`, `TSLA` (stocks), `EURUSD` (forex), `BTC-USD`, `ETH-USD` (crypto) — without exchange suffixes; Marketplace APIs may have their own demo symbols too
+
+**What is fully available with the demo key**:
+- Complete historical data (no date restrictions)
+- All main REST API features: EOD, intraday, fundamentals, technicals, calendar, etc.
+- Full data quality (not degraded or sampled)
 
 **Use Cases**:
-- Testing API endpoints
-- Learning the API structure
+- Testing API endpoints and data structure
+- Learning the API
 - Prototyping applications
 - Documentation examples
 

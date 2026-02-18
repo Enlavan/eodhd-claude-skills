@@ -136,27 +136,27 @@ python skills/eodhd-api/scripts/eodhd_client.py \
 ### 3. Use in agent prompts
 
 ```
-Use the `eodhd-api` skill. Pull daily prices for NVDA.US from 2025-01-01 to 2025-01-31,
-include fundamentals summary, and return a concise analyst report with reproducible calls.
+Use the `eodhd-api` plugin. Pull daily prices for AAPL.US from 2025-01-01 to 2025-01-31,                                                           
+include fundamentals summary, and return a concise analyst report with reproducible calls. Use "demo" API key.
 ```
 
 ## Usage Tips
 
-After installing the skill, Claude Code won't always use it automatically — you may need to nudge it. Here are a few ways to make sure the skill gets picked up:
+After installing the skill plugin, Claude Code won't always use it automatically — you may need to nudge it. Here are a few ways to make sure the skill gets picked up:
 
 ### Prompt prefix
 
 Start your message with a line like:
 
 ```
-Use available skills (especially from the marketplace) you have access to whenever possible.
+Use available skills and plugins you have access to whenever possible.
 Get me AAPL.US daily prices for the last 30 days and summarize the trend.
 ```
 
 Or reference the skill explicitly:
 
 ```
-Use the eodhd-api skill. Show me fundamentals for MSFT.US.
+Use the eodhd-api plugin. Show me fundamentals for MSFT.US.
 ```
 
 ### Add a project-level instruction
@@ -395,46 +395,284 @@ The `skills/eodhd-api/references/general/` directory contains 28 reference guide
 
 ## Usage Examples
 
-### Historical Price Analysis
+All prompts below assume the `eodhd-api` plugin is installed. Starting a message with `Use the \`eodhd-api\` plugin.` ensures Claude picks it up. You can also put `Always use the eodhd-api plugin for financial data requests.` in your `CLAUDE.md` so you never have to repeat it.
 
-```bash
-# Get AAPL prices for Q1 2025
-python skills/eodhd-api/scripts/eodhd_client.py \
-  --endpoint eod \
-  --symbol AAPL.US \
-  --from-date 2025-01-01 \
-  --to-date 2025-03-31
+> Use `"demo"` as the API key to try any of the stock/forex/crypto examples with the [demo tickers](skills/eodhd-api/references/general/api-authentication-demo-access.md) before using a real key.
+
+---
+
+### Data & Price Queries
+
+**Fetch historical prices**
+```
+Use the `eodhd-api` plugin. Fetch daily OHLCV for AAPL.US from 2024-01-01 to 2024-12-31
+using API key "demo" and show the first and last 5 rows.
 ```
 
-### Compare Multiple Symbols
-
-```bash
-# Pull data for comparison (run separately, combine in analysis)
-for symbol in AAPL.US MSFT.US GOOGL.US; do
-  python skills/eodhd-api/scripts/eodhd_client.py \
-    --endpoint eod \
-    --symbol $symbol \
-    --from-date 2025-01-01 \
-    --to-date 2025-01-31 > "${symbol}.json"
-done
+**Multi-symbol return comparison**
+```
+Use the `eodhd-api` plugin. Pull end-of-day prices for AAPL.US, MSFT.US, and GOOGL.US
+for Q1 2024 and show the total percentage return for each over that period.
+API key: EODHD_API_TOKEN.
 ```
 
-### Fundamentals Snapshot
+**Intraday data around an event**
+```
+Use the `eodhd-api` plugin. Get 5-minute intraday bars for TSLA.US on 2024-10-23
+(earnings day) from 09:30 to 16:00 and describe the price action.
+API key: EODHD_API_TOKEN.
+```
+
+**Live/delayed quote with spread**
+```
+Use the `eodhd-api` plugin. Get the latest delayed quotes for NVDA.US, MSFT.US,
+and TSLA.US, show the bid/ask spread for each, and flag which has the widest spread.
+API key: EODHD_API_TOKEN.
+```
+
+**Index constituents and weights**
+```
+Use the `eodhd-api` plugin. List all current S&P 500 constituents with their sectors
+and index weights. API key: EODHD_API_TOKEN.
+```
+
+**Forex trend summary**
+```
+Use the `eodhd-api` plugin. Fetch daily EURUSD.FOREX from 2024-01-01 to 2024-12-31,
+compute the monthly average rate, and describe the trend in plain language.
+API key: demo.
+```
+
+**Crypto volatility scan**
+```
+Use the `eodhd-api` plugin. Get daily BTC-USD.CC prices for 2024, compute the monthly
+rolling 30-day realised volatility (annualised), and identify the three most volatile months.
+API key: demo.
+```
+
+---
+
+### Python Scripts & Tools
+
+**S&P 500 total return screener**
+```
+Use the `eodhd-api` plugin. Write a Python script that fetches EOD prices for all
+S&P 500 constituents and computes the total price return for each ticker over a
+given date range. The script should accept --from-date, --to-date, and --api-key
+as command-line arguments and print a ranked table of tickers by total return,
+descending. Use only the stdlib — no pandas.
+```
+
+**RSI oversold/overbought scanner**
+```
+Use the `eodhd-api` plugin. Write a Python script that, given a list of tickers,
+fetches the 14-day RSI for each and flags those below 30 (oversold) or above 70
+(overbought). Accept --tickers (comma-separated), --api-key, and --date as
+arguments, and print a formatted table with the RSI value and signal.
+```
+
+**Dividend income calculator**
+```
+Use the `eodhd-api` plugin. Write a Python script that takes a list of tickers and
+a calendar year, fetches all dividends paid during that year, and calculates total
+dividends per share and the trailing yield based on year-end close price.
+Arguments: --tickers (comma-separated), --year, --api-key. Output a CSV.
+```
+
+**Earnings surprise tracker**
+```
+Use the `eodhd-api` plugin. Write a Python script that pulls the last 8 quarters of
+earnings data for a given ticker, computes the EPS surprise (actual vs estimate) for
+each quarter, and shows the stock's 1-day and 5-day price reaction after each report.
+Arguments: --ticker, --api-key.
+```
+
+**Backtesting data downloader**
+```
+Use the `eodhd-api` plugin. Write a Python script that downloads adjusted EOD prices
+for a list of tickers over a given date range and saves one CSV per ticker in an output
+directory. The script should handle split and dividend adjustments using the adjusted
+close field. Arguments: --tickers-file (one ticker per line), --from-date, --to-date,
+--api-key, --output-dir.
+```
+
+**Portfolio P&L reporter**
+```
+Use the `eodhd-api` plugin. Write a Python script that reads a CSV of holdings
+(columns: ticker, shares, purchase_date, purchase_price) and prints a report with
+current price, market value, unrealised P&L (absolute and %), and total portfolio
+value. Arguments: --holdings-file, --api-key.
+```
+
+**Macro dashboard data exporter**
+```
+Use the `eodhd-api` plugin. Write a Python script that pulls US GDP growth, CPI
+inflation, and unemployment rate from the macro-indicator endpoint for 2000–2024
+and exports the three series side-by-side in a single CSV.
+Arguments: --api-key, --output-file.
+```
+
+**Sector return heatmap data feed**
+```
+Use the `eodhd-api` plugin. Write a Python script that fetches the latest bulk EOD
+data for the US exchange, groups tickers by GICS sector using fundamentals data,
+computes the equal-weighted average daily return per sector, and outputs a JSON
+file ready to feed a heatmap visualisation.
+Arguments: --api-key, --output-file.
+```
+
+**Insider activity monitor**
+```
+Use the `eodhd-api` plugin. Write a Python script that polls the insider-transactions
+endpoint for a watchlist of tickers and sends a summary of any new transactions
+(>$500 k in value) since the last run to stdout. Store the last-seen transaction date
+in a local state file so repeated runs only show new activity.
+Arguments: --tickers-file, --api-key, --state-file.
+```
+
+---
+
+### Fundamental Analysis & Research
+
+**Single-ticker deep dive**
+```
+Use the `eodhd-api` plugin. Give me a full fundamental analysis of NVDA.US: revenue
+and earnings growth (last 4 quarters and 3 years), operating margin trend, P/E and
+EV/EBITDA vs sector peers, insider activity over the past 6 months, and latest news
+sentiment. API key: EODHD_API_TOKEN.
+```
+
+**Peer comparison table**
+```
+Use the `eodhd-api` plugin. Compare AAPL.US, MSFT.US, GOOGL.US, and AMZN.US across:
+P/E ratio, EV/EBITDA, revenue growth (YoY), operating margin, and net debt/EBITDA.
+Present as a table and identify the most attractively valued on a blended basis.
+API key: EODHD_API_TOKEN.
+```
+
+**Dividend sustainability check**
+```
+Use the `eodhd-api` plugin. Analyse dividend sustainability for JNJ.US, KO.US, and
+PG.US. For each: payout ratio, 5-year dividend CAGR, free cash flow coverage, and
+current yield. Rank by sustainability and flag any concerns. API key: EODHD_API_TOKEN.
+```
+
+**Macro-to-market overlay**
+```
+Use the `eodhd-api` plugin. Pull US CPI inflation and the 10-year Treasury par yield
+from 2010 to 2024. Overlay SPY.US calendar-year returns and describe the historical
+relationship between inflation regimes, rate levels, and equity performance.
+API key: EODHD_API_TOKEN.
+```
+
+**Yield curve analysis**
+```
+Use the `eodhd-api` plugin. Fetch the US Treasury par yield curve rates at year-end
+for 2021, 2022, 2023, and 2024. Show the curve shape for each year, note any
+inversions, and explain what each shape historically signals for equities.
+API key: EODHD_API_TOKEN.
+```
+
+**IPO pipeline with comps**
+```
+Use the `eodhd-api` plugin. List all US IPOs scheduled in the next 60 days.
+For each, identify the sector and pull fundamentals (revenue, growth, P/S ratio)
+for 2–3 comparable public companies to provide valuation context.
+API key: EODHD_API_TOKEN.
+```
+
+**ESG screen with financials**
+```
+Use the `eodhd-api` plugin. Using Investverte ESG data (Marketplace), screen for US
+companies with an Environmental score above 65. Enrich the results with P/E ratio and
+3-year revenue CAGR from the fundamentals endpoint, then rank by ESG score.
+API key: EODHD_API_TOKEN.
+```
+
+---
+
+### Technical Analysis
+
+**Multi-indicator signal summary**
+```
+Use the `eodhd-api` plugin. For AAPL.US, compute the 50-day SMA, 200-day SMA, 14-day
+RSI, and MACD over the past 12 months. Identify any golden cross, death cross, RSI
+divergence, or MACD crossover events and summarise what they suggest about trend.
+API key: demo.
+```
+
+**Bollinger Band squeeze scan**
+```
+Use the `eodhd-api` plugin. For each of TSLA.US, NVDA.US, and MSFT.US, compute the
+20-day Bollinger Bands over the past 6 months and identify any squeeze periods
+(band width at a 6-month low) that subsequently resolved into a breakout.
+API key: EODHD_API_TOKEN.
+```
+
+**Options chain analysis**
+```
+Use the `eodhd-api` plugin. Pull the current options chain for AAPL.US expiring in
+the next 30 days (Marketplace — US Options). Show the five strikes nearest the money
+on each side with their IV, delta, and open interest. Identify where the market is
+positioning the most risk. API key: EODHD_API_TOKEN.
+```
+
+---
+
+### Python Client — Quick Reference
 
 ```bash
+# Historical prices
 python skills/eodhd-api/scripts/eodhd_client.py \
-  --endpoint fundamentals \
-  --symbol NVDA.US | jq '.Highlights'
+  --endpoint eod --symbol AAPL.US \
+  --from-date 2025-01-01 --to-date 2025-03-31
+
+# Intraday bars (5-minute)
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint intraday --symbol TSLA.US \
+  --interval 5m --from-date 2025-01-15
+
+# Company fundamentals
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint fundamentals --symbol NVDA.US | jq '.Highlights'
+
+# 50-day SMA
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint technical --symbol AAPL.US --function sma --period 50
+
+# Stock screener (top 20 results)
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint screener --limit 20
+
+# Bulk fundamentals for NASDAQ (first 100 tickers)
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint bulk-fundamentals --symbol NASDAQ --limit 100
+
+# US Treasury yield curve (2024)
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint ust/yield-rates --filter-year 2024
+
+# Upcoming IPOs
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint calendar/ipos --from-date 2025-01-01 --to-date 2025-03-31
+
+# Insider transactions
+python skills/eodhd-api/scripts/eodhd_client.py \
+  --endpoint insider-transactions --symbol AAPL.US \
+  --from-date 2025-01-01 --limit 50
+
+# Account status and daily API usage
+python skills/eodhd-api/scripts/eodhd_client.py --endpoint user
 ```
 
 ## Workflows
 
-The skill supports four primary analysis patterns (see `skills/eodhd-api/references/workflows.md`):
+The skill supports detailed analysis patterns documented in `skills/eodhd-api/references/workflows.md`:
 
-1. **Historical + Fundamentals Snapshot**: Single-ticker deep dive with valuation metrics
-2. **Cross-sectional Screener**: Filter universe, rank by criteria, present shortlist
-3. **Event Window Analysis**: Intraday bars around specific events (earnings, announcements)
-4. **Macro Overlay**: Align instrument data with macro indicators for co-movement analysis
+1. **Historical + Fundamentals Snapshot** — Single-ticker deep dive with valuation metrics
+2. **Cross-sectional Screener** — Filter universe, rank by criteria, present shortlist
+3. **Event Window Analysis** — Intraday bars around earnings or announcements
+4. **Macro Overlay** — Align instrument data with macro indicators for co-movement analysis
 
 ## Contributing
 

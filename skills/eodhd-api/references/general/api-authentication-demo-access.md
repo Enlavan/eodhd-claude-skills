@@ -312,14 +312,26 @@ https://eodhd.com/api/calendar/earnings?symbols=AAPL.US&api_token=demo&fmt=json
 
 ### Real-Time Data
 
-**WebSockets**: Demo key works for real-time WebSocket streams with demo tickers:
+**WebSockets**: Demo key works for real-time WebSocket streams with a specific set of tickers. Note that WebSocket endpoints use short symbols **without** the exchange suffix (e.g., `AAPL` not `AAPL.US`), and the demo symbol set differs from the main REST API set:
+
+| Asset Class | Demo Tickers (WebSocket format) |
+|-------------|--------------------------------|
+| US Stocks | `AAPL`, `MSFT`, `TSLA` |
+| Forex | `EURUSD` |
+| Crypto | `BTC-USD`, `ETH-USD` |
 
 ```bash
-# ✅ Works - WebSocket real-time data
+# US Stocks
 wss://ws.eodhistoricaldata.com/ws/us?api_token=demo
-
-# Then subscribe to:
 {"action": "subscribe", "symbols": "AAPL,MSFT,TSLA"}
+
+# Forex
+wss://ws.eodhistoricaldata.com/ws/forex?api_token=demo
+{"action": "subscribe", "symbols": "EURUSD"}
+
+# Crypto
+wss://ws.eodhistoricaldata.com/ws/crypto?api_token=demo
+{"action": "subscribe", "symbols": "BTC-USD,ETH-USD"}
 ```
 
 **Live (Delayed) API**: Works with demo tickers (15-20 min delay for stocks)
@@ -1059,14 +1071,14 @@ def fetch_fundamentals(ticker, api_token):
 
 **What Works**:
 ✅ All main REST API endpoints
-✅ Full historical data access
+✅ Full historical data access (no date restrictions)
 ✅ All features (fundamentals, technicals, calendar, etc.)
-✅ WebSocket real-time streaming
 ✅ Intraday data
+⚠️ WebSocket real-time streaming — works, but may use a different demo symbol set than the main REST API; check WebSocket endpoint docs
 
 **What's Limited**:
-❌ Only 7 demo tickers available
-❌ Lower rate limits (20 requests/day, 1/second)
+❌ Only 7 demo tickers on main REST endpoints; special endpoints (WebSockets, Marketplace APIs) may have their own demo symbol sets
+❌ Lower rate limits
 ❌ Does not work for non-demo tickers
 
 **Best For**:

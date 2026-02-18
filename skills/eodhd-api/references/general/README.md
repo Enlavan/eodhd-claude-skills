@@ -272,9 +272,10 @@ Each endpoint has its own documentation covering:
 
 ### API Testing
 
-1. Use demo token: `api_token=demo`
-2. Test with known symbols: `AAPL.US`, `MSFT.US`
+1. Use demo token: `api_token=demo` (free, no registration needed — see [demo access guide](api-authentication-demo-access.md))
+2. Demo tickers (work across all relevant main REST endpoints): `AAPL.US`, `MSFT.US`, `TSLA.US` (stocks), `VTI.US` (ETF), `SWPPX.US` (mutual fund), `EURUSD.FOREX`, `BTC-USD.CC`
 3. Check responses for error messages
+4. **Note**: WebSocket and Marketplace endpoints may use a different demo symbol set — check their individual docs
 
 ### Support Channels
 
